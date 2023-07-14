@@ -66,6 +66,7 @@ from apify_client import ApifyClient
 from flask import Flask, make_response, request
 from IPython.display import display, HTML
 
+
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
@@ -426,5 +427,5 @@ def register():
     return "Terima kasih! Data Anda telah disimpan."
 
 if __name__ == '__main__':
-    app.run(port=8000)
+    app.run(port=5000)
 
