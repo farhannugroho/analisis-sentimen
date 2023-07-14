@@ -4,7 +4,13 @@
 # In[1]:
 
 
-get_ipython().run_line_magic('pip', 'install flask')
+import subprocess
+
+# Install Flask using pip
+subprocess.run(['pip', 'install', 'flask'])
+
+# Rest of your code...
+
 get_ipython().run_line_magic('pip', 'install tweet-preprocessor')
 get_ipython().run_line_magic('pip', 'install textblob')
 get_ipython().run_line_magic('pip', 'install sastrawi')
