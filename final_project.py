@@ -8,22 +8,35 @@ import subprocess
 
 # Install Flask using pip
 subprocess.run(['pip', 'install', 'flask'])
+subprocess.run(['pip', 'install', 'tweet-preprocessor'])
+subprocess.run(['pip', 'install', 'textblob'])
+subprocess.run(['pip', 'install', 'sastrawi'])
+subprocess.run(['pip', 'install', 'emoji'])
+subprocess.run(['pip', 'install', 'PySastrawi'])
+subprocess.run(['pip', 'install', 'pandas'])
+subprocess.run(['pip', 'install', 'tweepy'])
+subprocess.run(['pip', 'install', 'seaborn'])
+subprocess.run(['pip', 'install', 'matplotlib'])
+subprocess.run(['pip', 'install', 'scikit-learn'])
+subprocess.run(['pip', 'install', 'wordcloud'])
+subprocess.run(['pip', 'install', 'apify-client'])
+subprocess.run(['pip', 'install', 'wordcloud'])
 
 # Rest of your code...
 
-get_ipython().run_line_magic('pip', 'install tweet-preprocessor')
-get_ipython().run_line_magic('pip', 'install textblob')
-get_ipython().run_line_magic('pip', 'install sastrawi')
-get_ipython().run_line_magic('pip', 'install emoji')
-get_ipython().run_line_magic('pip', 'install PySastrawi')
-get_ipython().run_line_magic('pip', 'install pandas')
-get_ipython().run_line_magic('pip', 'install tweepy')
-get_ipython().run_line_magic('pip', 'install seaborn')
-get_ipython().run_line_magic('pip', 'install matplotlib')
-get_ipython().run_line_magic('pip', 'install scikit-learn')
-get_ipython().run_line_magic('pip', 'install wordcloud')
-get_ipython().run_line_magic('pip', 'install apify-client')
-get_ipython().run_line_magic('pip', 'install wordcloud')
+# get_ipython().run_line_magic('pip', 'install tweet-preprocessor')
+# get_ipython().run_line_magic('pip', 'install textblob')
+# get_ipython().run_line_magic('pip', 'install sastrawi')
+# get_ipython().run_line_magic('pip', 'install emoji')
+# get_ipython().run_line_magic('pip', 'install PySastrawi')
+# get_ipython().run_line_magic('pip', 'install pandas')
+# get_ipython().run_line_magic('pip', 'install tweepy')
+# get_ipython().run_line_magic('pip', 'install seaborn')
+# get_ipython().run_line_magic('pip', 'install matplotlib')
+# get_ipython().run_line_magic('pip', 'install scikit-learn')
+# get_ipython().run_line_magic('pip', 'install wordcloud')
+# get_ipython().run_line_magic('pip', 'install apify-client')
+# get_ipython().run_line_magic('pip', 'install wordcloud')
 
 import pandas as pd
 import re
