@@ -77,9 +77,6 @@ def register():
     link = link.replace(" ","")
     link = link.split(",")
     
-    print(f"apifyToken: {apifyToken}")
-    print(f"link: {link}")
-    
     # Initialize the ApifyClient with your API token
     client = ApifyClient("apify_api_20esNplRw082naUn9ckCu6SXMIsWcE0YCS7h")
 
