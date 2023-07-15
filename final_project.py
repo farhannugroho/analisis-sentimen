@@ -63,7 +63,7 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 from nltk.corpus import stopwords
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory, StopWordRemover, ArrayDictionary
 from apify_client import ApifyClient
-from flask import Flask, make_response, request
+from flask import Flask, make_response, request, render_template
 from IPython.display import display, HTML
 
 
@@ -73,16 +73,70 @@ app = Flask(__name__)
 def home():
     html_content = """
         <html>
+          <head>
+            <title>Analisis Sentimen</title>
+            <style>
+                .container {
+                    margin: 50px auto;
+                    width: 450px;
+                    text-align: center;
+                }
+
+                h1 {
+                    font-size: 24px;
+                    color: #333;
+                }
+
+                .input-area {
+                    width: 100%;
+                    height: 200px;
+                    margin-top: 20px;
+                    padding: 10px;
+                    font-size: 16px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                }
+
+                .submit-button {
+                    margin-top: 20px;
+                    padding: 10px 20px;
+                    background-color: #333;
+                    color: #fff;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 16px;
+                }
+
+                .loading {
+                    display: none;
+                    margin-top: 20px;
+                }
+
+                .loading-text {
+                    font-size: 16px;
+                    color: #333;
+                }
+            </style>
+            <script>
+                function showLoading() {
+                    document.getElementById('loading').style.display = 'block';
+                }
+            </script>
+          </head>
           <body>
-            <h1>Selamat Datang!</h1>
-            <p>Ini adalah halaman utama website sederhana yang dibuat menggunakan Jupyter Notebook.</p>
-            <form action="/metodologi" method="POST">
-              <label for="apifyToken">Apify Token:</label><br>
-              <input type="text" id="apifyToken" name="apifyToken"><br>
-              <label for="link">Link Posting Instagram:</label><br>
-              <input type="tesx" id="link" name="link"><br>
-              <input type="submit">
-            </form>
+              <div class="container">
+                  <h1>Input Link Posting Instagram</h1>
+                  <form action="/metodologi" method="POST">
+                      <textarea id="link" name="link" class="input-area" placeholder="Masukkan link disini"></textarea>
+                      <input style="background-color: green; color: white;" class="submit-button" onclick="showLoading()" type="submit">
+                  </form>
+                  <div id="loading" class="loading">
+                      <img src="https://media.tenor.com/wpSo-8CrXqUAAAAi/loading-loading-forever.gif" alt="Loading" width="50"
+                          height="50">
+                      <p class="loading-text">Sedang Memproses...</p>
+                  </div>
+              </div>
           </body>
         </html>
     """
@@ -362,19 +416,29 @@ def register():
 
     clf = MultinomialNB().fit(X_train, y_train)
     predicted = clf.predict(X_test)
-    print("Multinomial NB Accuracy  : ", accuracy_score(y_test,predicted))
-    print("Multinomial NB Precision : ", precision_score(y_test,predicted, average = 'macro', pos_label="Positif"))
-    print("Multinomial NB Recall    : ", recall_score(y_test,predicted, average = 'macro', pos_label="Positif"))
-    print("Multinomial NB F-Measure : ", f1_score(y_test,predicted, average = 'macro', pos_label="Positif"))
-
-    print(classification_report(y_test, predicted, zero_division=0))    
+    # print("Multinomial NB Accuracy  : ", accuracy_score(y_test,predicted))
+    # print("Multinomial NB Precision : ", precision_score(y_test,predicted, average = 'macro', pos_label="Positif"))
+    # print("Multinomial NB Recall    : ", recall_score(y_test,predicted, average = 'macro', pos_label="Positif"))
+    # print("Multinomial NB F-Measure : ", f1_score(y_test,predicted, average = 'macro', pos_label="Positif"))
+    # print(classification_report(y_test, predicted, zero_division=0))    
+    
+    
+    # Perform predictions and calculations
+    accuracy = accuracy_score(y_test, predicted)
+    precision = precision_score(y_test, predicted, average='macro', pos_label="Positif")
+    recall = recall_score(y_test, predicted, average='macro', pos_label="Positif")
+    f_measure = f1_score(y_test, predicted, average='macro', pos_label="Positif")
+    classification = classification_report(y_test, predicted, zero_division=0)
+    
     
     import seaborn as sns 
     import matplotlib.pyplot as plt 
     cm = confusion_matrix(predicted, y_test) 
     sns.heatmap(cm, annot=True, fmt='d')
     plt.title('Confusion Matrix') 
-    plt.show()
+    plt.savefig('static/confusion-matrix.png')
+    # plt.show()
+    plt.close()  
     
     predicted_proba = clf.predict_proba(X_test)
     predicted_proba
@@ -392,11 +456,15 @@ def register():
     roc_auc = dict()
     roc_auc
     colors = ['violet', 'black', 'yellow'] 
+    auc_scores = []
     for i in range(n_classes):
       fpr[i], tpr[i], _ = roc_curve(y_test_bin[:, i], predicted_proba[:, i]) 
       plt.plot(fpr[i], tpr[i], color=colors[i], lw=2, label= str(i)) 
-      print('AUC for Class {}: {}'.format(i, auc(fpr[i], tpr[i]).round(3)))
-      print()
+      # print('AUC for Class {}: {}'.format(i, auc(fpr[i], tpr[i]).round(3)))
+      # print()
+      auc_score = auc(fpr[i], tpr[i]).round(3)
+      auc_scores.append(auc_score)
+      
     # plt.figure(figsize=(12, 8))
     plt.plot([0, 1], [0,1], color='navy', lw=2, linestyle='--')
     plt.xlim([0.0, 1.0])
@@ -405,7 +473,9 @@ def register():
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic Curves') 
     plt.legend(loc='lower right')
-    plt.show()
+    plt.savefig('static/grafic-roc.png')
+    # plt.show()
+    plt.close()  
 
 
     isi_text = df['comment']
@@ -420,11 +490,22 @@ def register():
     plt.figure(figsize=(15,8))
     plt.imshow(wordcloud)
     plt.axis("off")
-    plt.savefig("wrcld"+".png", bbox_inches='tight')
-    plt.show()
+    plt.savefig("static/wrcld.png", bbox_inches='tight')
+    # plt.show()
     plt.close()  
     
-    return "Terima kasih! Data Anda telah disimpan."
+    
+    csv_files = ['data-instagram.csv', 'komentar_bersih_instagram.csv', 'labeling-data-instagram.csv']
+    data = []
+    
+    for file in csv_files:
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(file)
+        df = df.head(10)
+        # Convert the DataFrame to a dictionary and append it to the data list
+        data.append(df.to_dict('records'))
+        
+    return render_template('index.html', data=data,accuracy=accuracy, precision=precision, recall=recall, f_measure=f_measure, classification=classification, auc_scores=auc_scores)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

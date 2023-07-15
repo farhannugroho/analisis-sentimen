@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hasil Analisis</title>
+    <style>
+      .container {
+        width: 80%;
+        margin: 0 auto;
+      }
+      .btn {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body class="container">
+    <h1 style="text-align: center">Hasil Analisis</h1>
+    <br />
+    <div>
+      {% for csv_data in data %} {% if loop.index == 1 %}
+      <br />
+      <br />
+      <h2>Crawling Data</h2>
+      {% elif loop.index == 2 %}
+      <br />
+      <br />
+      <h2>Pre-Processing</h2>
+      {% elif loop.index == 3 %}
+      <br />
+      <br />
+      <h2>Transformation Data</h2>
+      {% endif %}
+      <table>
+        <thead>
+          <tr>
+            {% for column_name in csv_data[0] %}
+            <th>{{ column_name }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in csv_data %}
+          <tr>
+            {% for value in row.values() %}
+            <td>{{ value }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <br />
+      <br />
+      {% endfor %}
+    </div>
+    <div>
+      <h2>Prediction Results</h2>
+      <h3>Metrics:</h3>
+      <ul>
+        <li>Accuracy: {{ accuracy }}</li>
+        <li>Precision: {{ precision }}</li>
+        <li>Recall: {{ recall }}</li>
+        <li>F-Measure: {{ f_measure }}</li>
+      </ul>
+
+      <h3>Classification Report:</h3>
+      <pre>{{ classification }}</pre>
+    </div>
+    <br />
+
+    <div>
+      <h2>AUC Scores</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>AUC Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in range(auc_scores|length) %}
+          <tr>
+            <td>{{ i }}</td>
+            <td>{{ auc_scores[i] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <br />
+
+    <div>
+      <h2>Confusion Matrix</h2>
+
+      <img
+        src="{{ url_for('static', filename='confusion-matrix.png') }}"
+        alt="Confusion Matrix"
+      />
+    </div>
+    <br />
+
+    <div>
+      <h2>Grafic Receiver Operating Characteristic Curves</h2>
+
+      <img
+        src="{{ url_for('static', filename='grafic-roc.png') }}"
+        alt="Confusion Matrix"
+      />
+    </div>
+    <br />
+
+    <div>
+      <h2>Worldcloud Keyword</h2>
+
+      <img
+        src="{{ url_for('static', filename='wrcld.png') }}"
+        alt="Confusion Matrix"
+      />
+    </div>
+    <br />
+    <br />
+    <div style="text-align: center">
+      <a href="http://213.190.4.205:5000/" target="_blank">
+        <button
+          style="
+            width: 200px;
+            height: 50px;
+            margin: 30px 10px;
+            background-color: red;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+          "
+          class="btn"
+        >
+          Kembali
+        </button>
+      </a>
+    </div>
+    <br />
+    <br />
+    <br />
+    <br />
+  </body>
+</html>
