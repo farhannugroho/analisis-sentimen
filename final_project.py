@@ -508,5 +508,5 @@ def register():
     return render_template('index.html', data=data,accuracy=accuracy, precision=precision, recall=recall, f_measure=f_measure, classification=classification, auc_scores=auc_scores)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5050)
 
