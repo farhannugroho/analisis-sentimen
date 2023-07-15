@@ -486,7 +486,7 @@ def register():
 
     #convert list to string and generate
     unique_string=(" ").join(df['comment'])
-    wordcloud = WordCloud(width = 1000, height = 500,background_color ='white').generate(unique_string)
+    wordcloud = WordCloud(width = 800, height = 400,background_color ='white').generate(unique_string)
     plt.figure(figsize=(15,8))
     plt.imshow(wordcloud)
     plt.axis("off")
