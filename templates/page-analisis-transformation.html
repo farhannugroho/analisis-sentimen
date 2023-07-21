@@ -1,0 +1,154 @@
+<html>
+  <head>
+    <title>Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      /* Style untuk top bar */
+      .top-bar {
+        height: 60px;
+        background-color: #343a40;
+        color: #fff;
+        position: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 99;
+      }
+
+      /* Style untuk sidebar */
+      .sidebar {
+        height: 100%;
+        width: 250px;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        background-color: #343a40;
+        color: #fff;
+        padding-top: 20px;
+      }
+
+      /* Style untuk sidebar link */
+      .sidebar a {
+        color: #fff;
+        display: block;
+        padding: 8px 16px;
+        text-decoration: none;
+      }
+
+      a {
+        color: #fff;
+        display: block;
+        padding: 8px 16px;
+        text-decoration: none;
+      }
+
+      /* Style untuk sidebar link ketika dihover */
+      .sidebar a:hover {
+        background-color: #1c1e22;
+      }
+
+      .header {
+        background-color: #343a40;
+        color: #fff;
+        padding: 7px;
+        margin-left: 150px;
+        text-align: center;
+      }
+
+      /* Style untuk konten dashboard */
+      .dashboard-content {
+        margin-left: 260px;
+        padding: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12 top-bar"></div>
+      </div>
+      <div class="row">
+        <div class="col-md-3 sidebar">
+          <h5><a href="http://localhost:5050/dashboard">Dashboard</a></h5>
+          <h5>
+            <a href="http://localhost:5050/analisis-data/dataset"
+              >Analisis Sentimen</a
+            >
+          </h5>
+          <h5><a href="http://localhost:5050/crawling-data">Dataset</a></h5>
+          <h5><a href="http://localhost:5050">Logout</a></h5>
+        </div>
+        <div class="col-md-9 dashboard-content">
+          <div class="header" style="margin-top: 50px">
+            <h1>Analisis Sentimen</h1>
+          </div>
+          <br />
+          <br />
+          <br />
+          <div class="row">
+            <div class="col-md-3">
+              <h5>
+                <a
+                  style="color: #333"
+                  href="http://localhost:5050/analisis-data/dataset"
+                  >Dataset</a
+                >
+              </h5>
+              <h5>
+                <a
+                  style="color: #333"
+                  href="http://localhost:5050/analisis-data/preprocessing"
+                  >Pre-Processing</a
+                >
+              </h5>
+              <h5>
+                <a
+                  style="color: #333"
+                  href="http://localhost:5050/analisis-data/transformation"
+                  >Transformation</a
+                >
+              </h5>
+              <h5><a style="color: #333" href="http://localhost:5050/analisis-data/datamining">Data Mining</a></h5>
+              <h5><a style="color: #333" href="http://localhost:5050/analisis-data/evaluation">Evaluation</a></h5>
+            </div>
+            <div class="col-md-9">
+              <div>
+                <button><a style="color: #333" href="http://localhost:5050/analisis-data/transformation">Labeling</a></button>
+                <button><a style="color: #333" href="http://localhost:5050/analisis-data/transformation/tf-idf">TF-IDF</a></button>
+              </div>
+              <div style="margin-top:20px">
+                {% for csv_data in data %}
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      {% for column_name in csv_data[0] %}
+                      <th>{{ column_name }}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in csv_data %}
+                    <tr>
+                      <td>{{ loop.index }}</td>
+                      {% for value in row.values() %}
+                      <td>{{ value }}</td>
+                      {% endfor %}
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
