@@ -111,7 +111,7 @@ def login():
         </head>
 
         <body class="text-center">
-            <section class="vh-100" style="height: 800px;">
+            <section class="vh-100" style="height: 600px;">
                 <div class="container-fluid h-custom">
                     <div class="row d-flex justify-content-center align-items-center h-100">
                         <div class="col-md-9 col-lg-6 col-xl-5">
