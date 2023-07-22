@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Dashboard</title>
+    <title>Analisis Sentimen</title>
     <link
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -29,6 +29,7 @@
         background-color: #343a40;
         color: #fff;
         padding-top: 20px;
+        z-index: 99;
       }
 
       /* Style untuk sidebar link */
@@ -75,7 +76,7 @@
       <div class="row">
         <div class="col-md-3 sidebar">
           <h5><a href="/dashboard">Dashboard</a></h5>
-          <h5>
+          <h5 style="background-color: #1c1e22;">
             <a href="/analisis-data/dataset"
               >Analisis Sentimen</a
             >
@@ -129,7 +130,7 @@
               </h5>
             </div>
             <div class="col-md-9">
-              <div style="margin-top: 20px">
+              <div style="margin-top: 30px">
                 <div>
                   <div>
                     <h1>Uji Akurasi Metode</h1>
@@ -145,12 +146,12 @@
                   </div>
                 </div>
                 {% if classification %}
-                <div style="margin-top: 20px">
+                <div style="margin-top: 40px">
                   <h2>Classification Report:</h2>
                   <pre>{{ classification }}</pre>
                 </div>
 
-                <div style="margin-top: 20px">
+                <div style="margin-top: 40px">
                   <h2>AUC Scores</h2>
                   <table>
                     <thead>
@@ -170,7 +171,7 @@
                   </table>
                 </div>
 
-                <div style="margin-top: 20px">
+                <div style="margin-top: 40px">
                   <h2>Confusion Matrix</h2>
 
                   <img
@@ -179,7 +180,7 @@
                   />
                 </div>
 
-                <div style="margin-top: 20px">
+                <div style="margin-top: 40px">
                   <h2>Grafic Receiver Operating Characteristic Curves</h2>
 
                   <img
@@ -188,12 +189,13 @@
                   />
                 </div>
 
-                <div style="margin-top: 20px">
+                <div style="margin-top: 40px">
                   <h2>Worldcloud Keyword</h2>
 
                   <img
                     src="{{ url_for('static', filename='wrcld.png') }}"
                     alt="Confusion Matrix"
+                    style="width: 650px"
                   />
                 </div>
                 {% endif %}

@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Dashboard</title>
+    <title>Dataset</title>
     <link
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -73,7 +73,7 @@
               >Analisis Sentimen</a
             >
           </h5>
-          <h5><a href="/crawling-data">Dataset</a></h5>
+          <h5 style="background-color: #1c1e22;"><a href="/crawling-data">Dataset</a></h5>
           <h5><a href="/">Logout</a></h5>
         </div>
         <div class="col-md-9 dashboard-content">
@@ -89,7 +89,7 @@
 
             <div style="margin-top: 30px">
               {% for csv_data in data %}
-              <table>
+              <table class="table table-striped">
                 <thead>
                   <tr>
                     <th>No</th>

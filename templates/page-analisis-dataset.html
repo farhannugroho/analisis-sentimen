@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Dashboard</title>
+    <title>Analisis Sentimen</title>
     <link
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -29,6 +29,7 @@
         background-color: #343a40;
         color: #fff;
         padding-top: 20px;
+        z-index: 99;
       }
 
       /* Style untuk sidebar link */
@@ -64,6 +65,13 @@
         margin-left: 260px;
         padding: 20px;
       }
+
+      .col-md-9 table tr td:nth-child(2) {
+        max-width: 200px; /* Adjust the value as needed */
+        overflow: hidden; /* Hide overflowing content */
+        text-overflow: ellipsis; /* Show "..." for text overflow */
+        white-space: nowrap; /* Prevent line breaks */
+      }
     </style>
   </head>
 
@@ -75,10 +83,8 @@
       <div class="row">
         <div class="col-md-3 sidebar">
           <h5><a href="/dashboard">Dashboard</a></h5>
-          <h5>
-            <a href="/analisis-data/dataset"
-              >Analisis Sentimen</a
-            >
+          <h5 style="background-color: #1c1e22;">
+            <a href="/analisis-data/dataset">Analisis Sentimen</a>
           </h5>
           <h5><a href="/crawling-data">Dataset</a></h5>
           <h5><a href="/">Logout</a></h5>
@@ -93,20 +99,32 @@
           <div class="row">
             <div class="col-md-3">
               <h5>
-                <a style="color: #333" href="/analisis-data/dataset"
-                  >Dataset</a
+                <a style="color: #333" href="/analisis-data/dataset">Dataset</a>
+              </h5>
+              <h5>
+                <a style="color: #333" href="/analisis-data/preprocessing"
+                  >Pre-Processing</a
                 >
               </h5>
-              <h5><a style="color: #333" href="/analisis-data/preprocessing">Pre-Processing</a></h5>
               <h5>
-                <a style="color: #333" href="/analisis-data/transformation">Transformation</a>
+                <a style="color: #333" href="/analisis-data/transformation"
+                  >Transformation</a
+                >
               </h5>
-              <h5><a style="color: #333" href="/analisis-data/datamining">Data Mining</a></h5>
-              <h5><a style="color: #333" href="/analisis-data/evaluation">Evaluation</a></h5>
+              <h5>
+                <a style="color: #333" href="/analisis-data/datamining"
+                  >Data Mining</a
+                >
+              </h5>
+              <h5>
+                <a style="color: #333" href="/analisis-data/evaluation"
+                  >Evaluation</a
+                >
+              </h5>
             </div>
             <div class="col-md-9">
               {% for csv_data in data %}
-              <table>
+              <table class="table table-striped">
                 <thead>
                   <tr>
                     <th>No</th>

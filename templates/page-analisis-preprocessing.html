@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Dashboard</title>
+    <title>Analisis Sentimen</title>
     <link
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -29,6 +29,7 @@
         background-color: #343a40;
         color: #fff;
         padding-top: 20px;
+        z-index: 99;
       }
 
       /* Style untuk sidebar link */
@@ -75,7 +76,7 @@
       <div class="row">
         <div class="col-md-3 sidebar">
           <h5><a href="/dashboard">Dashboard</a></h5>
-          <h5>
+          <h5 style="background-color: #1c1e22;">
             <a href="/analisis-data/dataset"
               >Analisis Sentimen</a
             >
@@ -115,7 +116,7 @@
             </div>
             <div class="col-md-9">
               {% for csv_data in data %}
-              <table>
+              <table class="table table-striped">
                 <thead>
                   <tr>
                     <th>No</th>

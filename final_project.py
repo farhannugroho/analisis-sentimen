@@ -73,7 +73,7 @@ app = Flask(__name__)
 @app.route('/', methods=['GET'])
 def login():
     html_content = """
-        <!doctype html>
+        <!DOCTYPE html>
         <html lang="en">
 
         <head>
@@ -83,31 +83,31 @@ def login():
             <meta name="author" content="">
             <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
 
-            <title>Signin Template for Bootstrap</title>
+            <title>Login</title>
 
-            <<!-- Bootstrap core CSS -->
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-                    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+            <!-- Bootstrap core CSS -->
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+                integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-                <style>
-                    .divider:after,
-                    .divider:before {
-                        content: "";
-                        flex: 1;
-                        height: 1px;
-                        background: #eee;
-                    }
+            <style>
+                .divider:after,
+                .divider:before {
+                    content: "";
+                    flex: 1;
+                    height: 1px;
+                    background: #eee;
+                }
 
+                .h-custom {
+                    height: calc(100% - 73px);
+                }
+
+                @media (max-width: 450px) {
                     .h-custom {
-                        height: calc(100% - 73px);
+                        height: 100%;
                     }
-
-                    @media (max-width: 450px) {
-                        .h-custom {
-                            height: 100%;
-                        }
-                    }
-                </style>
+                }
+            </style>
         </head>
 
         <body class="text-center">
@@ -115,33 +115,43 @@ def login():
                 <div class="container-fluid h-custom">
                     <div class="row d-flex justify-content-center align-items-center h-100">
                         <div class="col-md-9 col-lg-6 col-xl-5">
-                            <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+                            <img
+                                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
                                 class="img-fluid" alt="Sample image">
                         </div>
                         <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                            <form action="/dashboard" method="get">
+                            <form action="/dashboard" method="get" onsubmit="return validateForm()">
                                 <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
-                                    <p class="lead fw-normal mb-0 me-3 font-weight-bold text-center">ANALISIS SENTIMEN INSTAGRAM</p>
+                                    <p class="lead fw-normal mb-0 me-3 font-weight-bold text-center">ANALISIS SENTIMEN
+                                        INSTAGRAM</p>
                                 </div>
 
                                 <div class="divider d-flex align-items-center my-4">
                                     <p class="text-center fw-bold mx-3 mb-0"></p>
                                 </div>
 
-                                <!-- Email input -->
+                                <!-- Username input with required attribute -->
                                 <div class="form-outline mb-4">
                                     <input type="text" id="form3Example3" class="form-control form-control-lg"
-                                        placeholder="Enter a username" />
+                                        placeholder="Enter a username" required />
+                                    <!-- Custom validation message -->
+                                    <div class="invalid-feedback">
+                                        Wrong Username.
+                                    </div>
                                 </div>
 
-                                <!-- Password input -->
+                                <!-- Password input with required attribute -->
                                 <div class="form-outline mb-3">
                                     <input type="password" id="form3Example4" class="form-control form-control-lg"
-                                        placeholder="Enter password" />
+                                        placeholder="Enter password" required />
+                                    <!-- Custom validation message -->
+                                    <div class="invalid-feedback">
+                                        Wrong Password.
+                                    </div>
                                 </div>
 
                                 <div class="text-center text-lg-start mt-4 pt-2">
-                                    <button type="submit" class="btn btn-primary btn-lg"
+                                    <button type="submit" class="btn btn-dark btn-lg"
                                         style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
                                 </div>
                             </form>
@@ -149,7 +159,7 @@ def login():
                     </div>
                 </div>
                 <div
-                    class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
+                    class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-dark">
                     <!-- Copyright -->
                     <div class="text-white mb-3 mb-md-0">
                         Copyright © 2020. Nugroho - Analisis Sentimen.
@@ -157,8 +167,33 @@ def login():
                     <!-- Copyright -->
                 </div>
             </section>
+
+            <script>
+                function validateForm() {
+                    var usernameInput = document.getElementById('form3Example3');
+                    var passwordInput = document.getElementById('form3Example4');
+
+                    if (usernameInput.value.trim() === '' || usernameInput.value.trim() !== 'admin') {
+                        usernameInput.classList.add('is-invalid');
+                        return false;
+                    } else {
+                        usernameInput.classList.remove('is-invalid');
+                    }
+
+                    if (passwordInput.value.trim() === '' || passwordInput.value.trim() !== 'password') {
+                        passwordInput.classList.add('is-invalid');
+                        return false;
+                    } else {
+                        passwordInput.classList.remove('is-invalid');
+                    }
+
+                    return true;
+                }
+            </script>
         </body>
-      </html>
+
+        </html>
+
     """
     response = make_response(html_content)
     return response
@@ -233,7 +268,7 @@ def dashboard():
               </div>
               <div class="row">
                 <div class="col-md-3 sidebar">
-                    <h5><a href="/dashboard">Dashboard</a></h5>
+                    <h5 style="background-color: #1c1e22;"><a href="/dashboard">Dashboard</a></h5>
                     <h5><a href="/analisis-data/dataset">Analisis Sentimen</a></h5>
                     <h5><a href="/crawling-data">Dataset</a></h5>
                     <h5><a href="/">Logout</a></h5>
@@ -243,21 +278,7 @@ def dashboard():
                         <h1>Dashboard</h1>
                     </div>
                     <div class="container">
-                        <div class="card">
-                            <h2>Users</h2>
-                            <p>Total Users: 100</p>
-                            <p>Active Users: 80</p>
-                        </div>
-                        <div class="card">
-                            <h2>Orders</h2>
-                            <p>Total Orders: 50</p>
-                            <p>Completed Orders: 30</p>
-                        </div>
-                        <div class="card">
-                            <h2>Revenue</h2>
-                            <p>Total Revenue: $5000</p>
-                            <p>Monthly Revenue: $1000</p>
-                        </div>
+                        
                     </div>
                 </div>
               </div>
@@ -1218,5 +1239,5 @@ def register():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
-    # app.run(debug=True)
+    # app.run(debug=True, host='0.0.0.0', port=5050)
 
