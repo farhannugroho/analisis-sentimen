@@ -136,9 +136,13 @@
                     {% for row in csv_data %}
                     <tr>
                       <td>{{ loop.index }}</td>
-                      {% for value in row.values() %}
-                      <td>{{ value }}</td>
-                      {% endfor %}
+                      <td>{{ row['original_comment'] }}</td>
+                      <td>{{ row['clean_comment'] }}</td>
+                      <td
+                        style="color: {% if row['label'] == 'negative' %} red {% elif row['label'] == 'neutral' %} black {% else %} green {% endif %}"
+                      >
+                        {{ row['label'] }}
+                      <td>{{ row['weight'] }}</td>
                     </tr>
                     {% endfor %}
                   </tbody>

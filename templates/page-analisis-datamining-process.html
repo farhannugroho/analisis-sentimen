@@ -75,10 +75,8 @@
       <div class="row">
         <div class="col-md-3 sidebar">
           <h5><a href="/dashboard">Dashboard</a></h5>
-          <h5 style="background-color: #1c1e22;">
-            <a href="/analisis-data/dataset"
-              >Analisis Sentimen</a
-            >
+          <h5 style="background-color: #1c1e22">
+            <a href="/analisis-data/dataset">Analisis Sentimen</a>
           </h5>
           <h5><a href="/crawling-data">Dataset</a></h5>
           <h5><a href="/">Logout</a></h5>
@@ -93,34 +91,28 @@
           <div class="row">
             <div class="col-md-3">
               <h5>
-                <a
-                  style="color: #333"
-                  href="/analisis-data/dataset"
-                  >Dataset</a
-                >
+                <a style="color: #333" href="/analisis-data/dataset">Dataset</a>
               </h5>
               <h5>
-                <a
-                  style="color: #333"
-                  href="/analisis-data/preprocessing"
+                <a style="color: #333" href="/analisis-data/preprocessing"
                   >Pre-Processing</a
                 >
               </h5>
               <h5>
-                <a
-                  style="color: #333"
-                  href="/analisis-data/transformation"
+                <a style="color: #333" href="/analisis-data/transformation"
                   >Transformation</a
                 >
               </h5>
               <h5>
-                <a
-                  style="color: #333"
-                  href="/analisis-data/datamining"
+                <a style="color: #333" href="/analisis-data/datamining"
                   >Data Mining</a
                 >
               </h5>
-              <h5><a style="color: #333" href="/analisis-data/evaluation">Evaluation</a></h5>
+              <h5>
+                <a style="color: #333" href="/analisis-data/evaluation"
+                  >Evaluation</a
+                >
+              </h5>
             </div>
             <div class="col-md-9">
               <div>
@@ -165,9 +157,17 @@
                     {% for row in csv_data %}
                     <tr>
                       <td>{{ loop.index }}</td>
-                      {% for value in row.values() %}
-                      <td>{{ value }}</td>
-                      {% endfor %}
+                      <td>{{ row['Clean Comment'] }}</td>
+                      <td
+                        style="color: {% if row['True Label'] == 'negative' %} red {% elif row['True Label'] == 'neutral' %} black {% else %} green {% endif %}"
+                      >
+                        {{ row['True Label'] }}
+                      </td>
+                      <td
+                        style="color: {% if row['Predicted Label'] == 'negative' %} red {% elif row['Predicted Label'] == 'neutral' %} black {% else %} green {% endif %}"
+                      >
+                        {{ row['Predicted Label'] }}
+                      </td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -188,7 +188,9 @@
         var selectedValue = document.getElementById("presentase").value;
 
         // Redirect to the new page with the selected value as a query parameter
-        window.location.href = "/analisis-data/datamining-process?selectedPresentase=" + selectedValue;
+        window.location.href =
+          "/analisis-data/datamining-process?selectedPresentase=" +
+          selectedValue;
       }
     </script>
   </body>
