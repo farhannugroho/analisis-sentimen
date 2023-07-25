@@ -6,23 +6,23 @@
 
 import subprocess
 
-# # Install Flask using pip
-# subprocess.run(['pip', 'install', 'flask'])
-# subprocess.run(['pip', 'install', 'tweet-preprocessor'])
-# subprocess.run(['pip', 'install', 'textblob'])
-# subprocess.run(['pip', 'install', 'sastrawi'])
-# subprocess.run(['pip', 'install', 'emoji'])
-# subprocess.run(['pip', 'install', 'PySastrawi'])
-# subprocess.run(['pip', 'install', 'pandas'])
-# subprocess.run(['pip', 'install', 'tweepy'])
-# subprocess.run(['pip', 'install', 'seaborn'])
-# subprocess.run(['pip', 'install', 'matplotlib'])
-# subprocess.run(['pip', 'install', 'scikit-learn'])
-# subprocess.run(['pip', 'install', 'wordcloud'])
-# subprocess.run(['pip', 'install', 'apify-client'])
-# subprocess.run(['pip', 'install', 'wordcloud'])
-# subprocess.run(['pip', 'install', 'openpyxl'])
-# subprocess.run(['pip', 'install', 'plotly'])
+# Install Flask using pip
+subprocess.run(['pip', 'install', 'flask'])
+subprocess.run(['pip', 'install', 'tweet-preprocessor'])
+subprocess.run(['pip', 'install', 'textblob'])
+subprocess.run(['pip', 'install', 'sastrawi'])
+subprocess.run(['pip', 'install', 'emoji'])
+subprocess.run(['pip', 'install', 'PySastrawi'])
+subprocess.run(['pip', 'install', 'pandas'])
+subprocess.run(['pip', 'install', 'tweepy'])
+subprocess.run(['pip', 'install', 'seaborn'])
+subprocess.run(['pip', 'install', 'matplotlib'])
+subprocess.run(['pip', 'install', 'scikit-learn'])
+subprocess.run(['pip', 'install', 'wordcloud'])
+subprocess.run(['pip', 'install', 'apify-client'])
+subprocess.run(['pip', 'install', 'wordcloud'])
+subprocess.run(['pip', 'install', 'openpyxl'])
+subprocess.run(['pip', 'install', 'plotly'])
 
 # Rest of your code...
 
