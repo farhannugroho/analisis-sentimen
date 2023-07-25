@@ -86,68 +86,68 @@
           <p>
             <a href="/analisis-data/dataset">Analisis Sentimen</a>
           </p>
-          <p style="background-color: #1c1e22">
+          <p>
             <a href="/crawling-data">Dataset</a>
           </p>
-          <p>
+          <p style="background-color: #1c1e22">
             <a href="/prediction">Prediction</a>
           </p>
           <p><a href="/">Logout</a></p>
         </div>
         <div class="col-md-9 dashboard-content">
           <div class="header" style="margin-top: 50px">
-            <h4>Dataset</h4>
+            <h4>Prediction</h4>
           </div>
           <div
-            id="loginForm"
-            onsubmit="return handleSubmit()"
-            class="container"
-            style="margin-top: 50px"
+            class="card shadow p-3 mb-5 bg-white rounded"
+            style="margin-top: 30px"
           >
-            <form action="/crawling-data" method="post">
-              <div class="form-group">
-                <button type="submit" onclick="showLoading()">
-                  Crawling Data
-                </button>
-              </div>
-              <div id="loading" class="loading">
-                <img
-                  src="https://media.tenor.com/wpSo-8CrXqUAAAAi/loading-loading-forever.gif"
-                  alt="Loading"
-                  width="25"
-                  height="25"
-                />
-                <p class="loading-text">Sedang Memproses...</p>
-              </div>
-            </form>
-
             <div
-              class="card shadow p-3 mb-5 bg-white rounded"
-              style="margin-top: 30px"
+              id="loginForm"
+              onsubmit="return handleSubmit()"
+              class="container"
+              style="margin-top: 50px"
             >
-              <div class="table-responsive">
-                {% for csv_data in data %}
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>No</th>
-                      {% for column_name in csv_data[0] %}
-                      <th>{{ column_name }}</th>
-                      {% endfor %}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for row in csv_data %}
-                    <tr>
-                      <td style="font-size: 12px;">{{ loop.index }}</td>
-                      {% for value in row.values() %}
-                      <td style="font-size: 12px;">{{ value }}</td>
-                      {% endfor %}
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                {% endfor %}
+              <form action="/prediction" method="post">
+                <div class="form-group">
+                  <label for="sentence">Masukkan Kalimat:</label><br />
+                  <input
+                    type="text"
+                    name="sentence"
+                    id="sentence"
+                    required
+                  /><br /><br />
+                  <button type="submit" onclick="showLoading()">
+                    Prediksi
+                  </button>
+                </div>
+                <div id="loading" class="loading">
+                  <img
+                    src="https://media.tenor.com/wpSo-8CrXqUAAAAi/loading-loading-forever.gif"
+                    alt="Loading"
+                    width="25"
+                    height="25"
+                  />
+                  <p class="loading-text">Sedang Memproses...</p>
+                </div>
+              </form>
+
+              <div>
+                {% if sentence %}
+                <h5>Hasil:</h5>
+                <p>Kalimat awal: {{ sentence }}</p>
+                <p>Kalimat setelah parsing: {{ parsed_sentence }}</p>
+                <p>Prediksi Sentimen: {{ prediction }}</p>
+
+                <p>Presentase Accuracy: {{ accuracy }}%</p>
+
+                <p>Presentase Sentimen: </p>
+                <ul>
+                  <li>Positif: {{ percentage_positive }}%</li>
+                  <li>Negatif: {{ percentage_negative }}%</li>
+                  <li>Netral: {{ percentage_neutral }}%</li>
+                </ul>
+                {% endif %}
               </div>
             </div>
           </div>

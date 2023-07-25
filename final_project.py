@@ -22,6 +22,7 @@ import subprocess
 # subprocess.run(['pip', 'install', 'apify-client'])
 # subprocess.run(['pip', 'install', 'wordcloud'])
 # subprocess.run(['pip', 'install', 'openpyxl'])
+# subprocess.run(['pip', 'install', 'plotly'])
 
 # Rest of your code...
 
@@ -200,94 +201,21 @@ def login():
   
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    html_content = """
-        <html>
-          <head>
-              <title>Dashboard</title>
-              <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-              <style>
-                /* Style untuk top bar */
-                .top-bar {
-                  height: 60px;
-                  background-color: #343a40;
-                  color: #fff;
-                  position: fixed;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  padding: 0 20px;
-                  z-index: 99;
-                }
-              
-                /* Style untuk sidebar */
-                .sidebar {
-                  height: 100%;
-                  width: 250px;
-                  position: fixed;
-                  top: 60px;
-                  left: 0;
-                  background-color: #343a40;
-                  color: #fff;
-                  padding-top: 20px;
-                }
+  import plotly.graph_objs as go
+  
+  # Load dataset
+  dataset = pd.read_csv('labeling-data-instagram.csv')
+  print(dataset)
 
-                /* Style untuk sidebar link */
-                .sidebar a {
-                  color: #fff;
-                  display: block;
-                  padding: 8px 16px;
-                  text-decoration: none;
-                }
+  # Remove rows with NaN values
+  dataset.dropna(subset=['clean_comment', 'label'], inplace=True)
+  
+  total_negative = dataset['label'].eq('negative').sum()
+  total_neutral = dataset['label'].eq('neutral').sum()
+  total_positive = dataset['label'].eq('positive').sum()
 
-                /* Style untuk sidebar link ketika dihover */
-                .sidebar a:hover {
-                  background-color: #1c1e22;
-                }
-                
-                .header {
-                  background-color: #343a40;
-                  color: #fff;
-                  padding: 7px;
-                  margin-left: 150px;
-                  text-align: center;
-                }
-
-                /* Style untuk konten dashboard */
-                .dashboard-content {
-                  margin-left: 260px;
-                  padding: 20px;
-                }
-              </style>
-          </head>
-
-          <body>
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-md-12 top-bar">
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-3 sidebar">
-                    <h5 style="background-color: #1c1e22;"><a href="/dashboard">Dashboard</a></h5>
-                    <h5><a href="/analisis-data/dataset">Analisis Sentimen</a></h5>
-                    <h5><a href="/crawling-data">Dataset</a></h5>
-                    <h5><a href="/">Logout</a></h5>
-                </div>
-                <div class="col-md-9 dashboard-content">
-                    <div class="header" style="margin-top: 50px">
-                        <h1>Dashboard</h1>
-                    </div>
-                    <div class="container">
-                        
-                    </div>
-                </div>
-              </div>
-            </div>
-          </body>
-        </html>
-    """
-    response = make_response(html_content)
-    return response
+  return render_template('page-dashboard.html', total_positive=total_positive,
+                           total_negative=total_negative, total_neutral=total_neutral)
 
 @app.route('/analisis-data/dataset', methods=['GET'])
 def analisisDataset():
@@ -650,6 +578,8 @@ def datamining():
 @app.route('/analisis-data/datamining-process', methods=['GET'])
 def dataminingProcess():
     presentase = request.args.get('selectedPresentase')
+    persen = float(presentase)*100
+    persen = int(persen)
   
     df = pd.read_csv('labeling-data-instagram.csv', usecols=['clean_comment', 'label']).dropna() 
     tf = TfidfVectorizer()
@@ -730,7 +660,7 @@ def dataminingProcess():
         # Convert the DataFrame to a dictionary and append it to the data list
         data.append(df.to_dict('records'))
         
-    return render_template('page-analisis-datamining-process.html', data=data,accuracy=accuracy, precision=precision, recall=recall, f_measure=f_measure, classification=classification)
+    return render_template('page-analisis-datamining-process.html', data=data,persen=persen,accuracy=accuracy, precision=precision, recall=recall, f_measure=f_measure, classification=classification)
 
 @app.route('/analisis-data/evaluation', methods=['GET'])
 def evaluation():
@@ -740,6 +670,8 @@ def evaluation():
 @app.route('/analisis-data/evaluation-process', methods=['GET'])
 def evaluationProcess():
     presentase = request.args.get('selectedPresentase')
+    persen = float(presentase)*100
+    persen = int(persen)
   
     df = pd.read_csv('labeling-data-instagram.csv', usecols=['clean_comment', 'label']).dropna() 
     tf = TfidfVectorizer()
@@ -871,7 +803,146 @@ def evaluationProcess():
     # # plt.show()
     plt.close()  
         
-    return render_template('page-analisis-evaluation.html',accuracy=accuracy, precision=precision, recall=recall, f_measure=f_measure, classification=classification, auc_scores=auc_scores)
+    return render_template('page-analisis-evaluation.html',persen=persen, accuracy=accuracy, precision=precision, recall=recall, f_measure=f_measure, classification=classification, auc_scores=auc_scores)
+
+@app.route('/prediction', methods=['GET', 'POST'])
+def prediction():
+  if request.method == 'POST':
+    sentence = request.form['sentence']
+    
+    # Parsing kalimat
+    parsed_sentence = parse_sentence(sentence)
+    
+    # Load dataset
+    dataset = pd.read_csv('labeling-data-instagram.csv')
+    
+    # Remove rows with NaN values
+    dataset.dropna(subset=['clean_comment', 'label'], inplace=True)
+    
+    from sklearn.model_selection import train_test_split
+    from sklearn.naive_bayes import MultinomialNB
+    
+    # Split dataset into training and testing sets
+    X = dataset['clean_comment']
+    y = dataset['label']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+    
+    # Vectorize the text data
+    vectorizer = CountVectorizer()
+    X_train_vectorized = vectorizer.fit_transform(X_train)
+    X_test_vectorized = vectorizer.transform([parsed_sentence])
+
+
+    # Train Naive Bayes classifier
+    nb_classifier = MultinomialNB()
+    nb_classifier.fit(X_train_vectorized, y_train)
+
+    # Make prediction
+    prediction = nb_classifier.predict(X_test_vectorized)[0]
+    prediction_proba = nb_classifier.predict_proba(X_test_vectorized)[0]
+    
+    # Get the percentage for each sentiment category
+    percentage_negative = prediction_proba[0] * 100
+    percentage_neutral = prediction_proba[1] * 100
+    percentage_positive = prediction_proba[2] * 100
+    
+    # Calculate accuracy on testing data
+    X_test_vectorized = vectorizer.transform(X_test)
+    accuracy = nb_classifier.score(X_test_vectorized, y_test)
+    
+    return render_template('page-prediction.html', sentence=sentence, 
+            parsed_sentence=parsed_sentence, prediction=prediction,
+            percentage_positive=percentage_positive,
+            percentage_negative=percentage_negative,
+            percentage_neutral=percentage_neutral,
+            accuracy=accuracy)
+  
+  return render_template('page-prediction.html')
+
+def parse_sentence(sentence):
+    
+    # Pembersihan Tagging
+    def remove_pattern(text, pattern_regex):
+        r = re.findall(pattern_regex, text)
+        for i in r:
+            text = re.sub(i, '', text)
+        return text
+
+    sentence = remove_pattern(sentence, " *RT* | *@[\w]*")
+
+    # Penghapusan Emoji dan Karakter Khusus
+    def remove(text):
+        text = ' '.join(re.sub(r"(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", text).split())
+        return text
+
+    sentence = remove(sentence)
+
+    # Penghapusan Hashtag
+    def remov(text):
+        text = re.sub(r'\$\w*', '', text)
+        text = re.sub(r'^RT[\s]+', '', text)
+        text = re.sub(r'#', '', text)
+        text = re.sub(r'[0-9]+', '', text)
+        return text
+
+    sentence = remov(sentence)
+
+    # Tokenisasi
+    from nltk.tokenize import TweetTokenizer
+    tokenizer = TweetTokenizer(preserve_case=False, strip_handles=True, reduce_len=True)
+    comment_tokens = tokenizer.tokenize(sentence)
+
+    # Stopword Removal
+    nltk.download('stopwords')
+    stopwords_indonesia = stopwords.words('indonesian')
+    # Tambahkan stopwords tambahan jika diperlukan
+    more_stopwords = []
+    data = stopwords_indonesia + more_stopwords
+
+    stop_factory = StopWordRemoverFactory().get_stop_words()
+    more_stopwords = [
+        'yg', 'utk', 'cuman', 'deh', 'Btw', 'tapi', 'gua', 'gue', 'lo', 'lu',
+        'kalo', 'trs', 'jd', 'nih', 'ntr', 'nya', 'lg', 'gk', 'ecusli', 'dpt',
+        'dr', 'kpn', 'kok', 'kyk', 'donk', 'yah', 'u', 'ya', 'ga', 'km', 'eh',
+        'sih', 'eh', 'bang', 'br', 'kyk', 'rp', 'jt', 'kan', 'gpp', 'sm', 'usah'
+        'mas', 'sob', 'thx', 'ato', 'jg', 'gw', 'wkwkwk', 'mak', 'haha', 'iy', 'k'
+        'tp','haha', 'dg', 'dri', 'duh', 'ye', 'wkwk', 'syg', 'btw',
+        'nerjemahin', 'gaes', 'guys', 'moga', 'kmrn', 'nemu', 'yukk',
+        'wkwkw', 'klas', 'iw', 'ew', 'lho', 'sbnry', 'org', 'gtu', 'bwt',
+        'krlga', 'clau', 'lbh', 'cpet', 'ku', 'wke', 'mba', 'mas', 'sdh', 'kmrn',
+        'oi', 'spt', 'dlm', 'bs', 'krn', 'jgn', 'sapa', 'spt', 'sh', 'wakakaka',
+        'sihhh', 'hehe', 'ih', 'dgn', 'la', 'kl', 'ttg', 'mana', 'kmna', 'kmn',
+        'tdk', 'tuh', 'dah', 'kek', 'ko', 'pls', 'bbrp', 'pd', 'mah', 'dhhh',
+        'kpd', 'tuh', 'kzl', 'byar', 'si', 'sii', 'cm', 'sy', 'hahahaha', 'weh',
+        'dlu', 'tuhh'
+    ]
+    stop_factory = stop_factory+more_stopwords
+    dictionary = ArrayDictionary(data)
+    stopword = StopWordRemover(dictionary)
+
+    # Proses Stemming
+    factory = StemmerFactory()
+    stemmer = factory.create_stemmer()
+
+    # Praproses komentar
+    def clean_comment(comment):
+        comments_clean = []
+        for word in comment:
+            if (
+                word not in data and
+                word not in string.punctuation
+            ):
+                stem_word = stemmer.stem(word)
+                comments_clean.append(stem_word)
+
+        return comments_clean
+
+    sentence = clean_comment(comment_tokens)
+
+    # Penggabungan kembali kata-kata yang telah dipreproses
+    sentence = TreebankWordDetokenizer().detokenize(sentence)
+
+    return sentence
 
 @app.route('/metodologi', methods=['POST'])
 def register():

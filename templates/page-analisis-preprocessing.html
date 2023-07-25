@@ -40,6 +40,13 @@
         text-decoration: none;
       }
 
+      h6 a {
+        color: #fff;
+        display: block;
+        padding: 8px 16px;
+        text-decoration: none;
+      }
+
       a {
         color: #fff;
         display: block;
@@ -75,70 +82,74 @@
       </div>
       <div class="row">
         <div class="col-md-3 sidebar">
-          <h5><a href="/dashboard">Dashboard</a></h5>
-          <h5 style="background-color: #1c1e22;">
+          <p><a href="/dashboard">Dashboard</a></p>
+          <p style="background-color: #1c1e22;">
             <a href="/analisis-data/dataset"
               >Analisis Sentimen</a
             >
-          </h5>
-          <h5><a href="/crawling-data">Dataset</a></h5>
-          <h5><a href="/">Logout</a></h5>
+          </p>
+          <p><a href="/crawling-data">Dataset</a></p>
+          <p>
+            <a href="/prediction">Prediction</a>
+          </p>
+          <p><a href="/">Logout</a></p>
         </div>
         <div class="col-md-9 dashboard-content">
           <div class="header" style="margin-top: 50px">
-            <h1>Analisis Sentimen</h1>
+            <h4>Analisis Sentimen</h4>
           </div>
           <br />
           <br />
-          <br />
-          <div class="row">
-            <div class="col-md-3">
-              <h5>
-                <a
-                  style="color: #333"
-                  href="/analisis-data/dataset"
-                  >Dataset</a
-                >
-              </h5>
-              <h5>
-                <a
-                  style="color: #333"
-                  href="/analisis-data/preprocessing"
-                  >Pre-Processing</a
-                >
-              </h5>
-              <h5>
-                <h5>
-                  <a style="color: #333" href="/analisis-data/transformation">Transformation</a>
-                </h5>
-              <h5><a style="color: #333" href="/analisis-data/datamining">Data Mining</a></h5>
-              <h5><a style="color: #333" href="/analisis-data/evaluation">Evaluation</a></h5>
-            </div>
-            <div class="col-md-9">
-              {% for csv_data in data %}
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>No</th>
-                    {% for column_name in csv_data[0] %}
-                    <th>{{ column_name }}</th>
-                    {% endfor %}
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for row in csv_data %}
-                  <tr>
-                    <td>{{ loop.index }}</td>
-                    {% for value in row.values() %}
-                    <td>{{ value }}</td>
-                    {% endfor %}
-                  </tr>
+          <div class="card shadow p-3 mb-5 bg-white rounded" style="padding: 10px">
+            <div class="row">
+              <div class="col-md-3">
+                <h6>
+                  <a
+                    style="color: #333"
+                    href="/analisis-data/dataset"
+                    >Dataset</a
+                  >
+                </h6>
+                <h6 style="background-color: #e2e3e5">
+                  <a
+                    style="color: #333"
+                    href="/analisis-data/preprocessing"
+                    >Pre-Processing</a
+                  >
+                </h6>
+                <h6>
+                  <h6>
+                    <a style="color: #333" href="/analisis-data/transformation">Transformation</a>
+                  </h6>
+                <h6><a style="color: #333" href="/analisis-data/datamining">Data Mining</a></h6>
+                <h6><a style="color: #333" href="/analisis-data/evaluation">Evaluation</a></h6>
+              </div>
+              <div class="col-md-9">
+                <div class="table-responsive">
+                  {% for csv_data in data %}
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>No</th>
+                        {% for column_name in csv_data[0] %}
+                        <th>{{ column_name }}</th>
+                        {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for row in csv_data %}
+                      <tr>
+                        <td style="font-size: 12px;">{{ loop.index }}</td>
+                        {% for value in row.values() %}
+                        <td style="font-size: 12px;">{{ value }}</td>
+                        {% endfor %}
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
                   {% endfor %}
-                </tbody>
-              </table>
-              <br />
-              <br />
-              {% endfor %}
+                </div>
+              </div>
             </div>
           </div>
         </div>
