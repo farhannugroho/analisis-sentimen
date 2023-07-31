@@ -181,7 +181,7 @@ def login():
                     if (username === '' || (username !== 'admin' && username !== 'user')) {
                         usernameInput.classList.add('is-invalid');
                         usernameInput.classList.remove('is-valid');
-                        usernameInput.setCustomValidity("Please enter a valid username (admin or user).");
+                        usernameInput.setCustomValidity("Please enter a valid username.");
                         return false;
                     } else {
                         usernameInput.classList.remove('is-invalid');
