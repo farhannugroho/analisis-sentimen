@@ -82,15 +82,8 @@
       </div>
       <div class="row">
         <div class="col-md-3 sidebar">
-          <p><a href="/dashboard">Dashboard</a></p>
-          <p>
-            <a href="/analisis-data/dataset">Analisis Sentimen</a>
-          </p>
-          <p>
-            <a href="/crawling-data">Dataset</a>
-          </p>
           <p style="background-color: #1c1e22">
-            <a href="/prediction">Prediction</a>
+            <a href="/user-prediction">Prediction</a>
           </p>
           <p><a href="/">Logout</a></p>
         </div>
@@ -108,7 +101,7 @@
               class="container"
               style="margin-top: 50px"
             >
-              <form action="/prediction" method="post">
+              <form action="/user-prediction" method="post">
                 <div class="form-group">
                   <label for="sentence">Masukkan Kalimat:</label><br />
                   <input
@@ -116,7 +109,6 @@
                     name="sentence"
                     id="sentence"
                     required
-                    autocomplete="off"
                   /><br /><br />
                   <button type="submit" onclick="showLoading()">
                     Prediksi

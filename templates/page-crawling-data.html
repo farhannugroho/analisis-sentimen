@@ -105,7 +105,14 @@
             style="margin-top: 50px"
           >
             <form action="/crawling-data" method="post">
-              <div class="form-group">
+              <textarea
+                id="link"
+                name="link"
+                class="input-area"
+                placeholder="Masukkan link disini"
+                style="width: 400px; height: 200px"
+              ></textarea>
+              <div class="form-group" style="margin-top: 10px">
                 <button type="submit" onclick="showLoading()">
                   Crawling Data
                 </button>
@@ -139,9 +146,9 @@
                   <tbody>
                     {% for row in csv_data %}
                     <tr>
-                      <td style="font-size: 12px;">{{ loop.index }}</td>
+                      <td style="font-size: 12px">{{ loop.index }}</td>
                       {% for value in row.values() %}
-                      <td style="font-size: 12px;">{{ value }}</td>
+                      <td style="font-size: 12px">{{ value }}</td>
                       {% endfor %}
                     </tr>
                     {% endfor %}

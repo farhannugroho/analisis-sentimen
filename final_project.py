@@ -65,7 +65,7 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 from nltk.corpus import stopwords
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory, StopWordRemover, ArrayDictionary
 from apify_client import ApifyClient
-from flask import Flask, make_response, request, render_template, send_file
+from flask import Flask, make_response, request, render_template, send_file, redirect
 from IPython.display import display, HTML
 
 
@@ -134,7 +134,8 @@ def login():
                                 <!-- Username input with required attribute -->
                                 <div class="form-outline mb-4">
                                     <input type="text" id="form3Example3" class="form-control form-control-lg"
-                                        placeholder="Enter a username" required />
+                                        placeholder="Enter a username" required autocomplete="off"/>
+                                    <input type="hidden" id="usernameInput" name="username" value="" />
                                     <!-- Custom validation message -->
                                     <div class="invalid-feedback">
                                         Wrong Username.
@@ -174,20 +175,34 @@ def login():
                     var usernameInput = document.getElementById('form3Example3');
                     var passwordInput = document.getElementById('form3Example4');
 
-                    if (usernameInput.value.trim() === '' || usernameInput.value.trim() !== 'admin') {
+                    var username = usernameInput.value.trim();
+                    var password = passwordInput.value.trim();
+
+                    if (username === '' || (username !== 'admin' && username !== 'user')) {
                         usernameInput.classList.add('is-invalid');
+                        usernameInput.classList.remove('is-valid');
+                        usernameInput.setCustomValidity("Please enter a valid username (admin or user).");
                         return false;
                     } else {
                         usernameInput.classList.remove('is-invalid');
+                        usernameInput.classList.add('is-valid');
+                        usernameInput.setCustomValidity("");
                     }
 
-                    if (passwordInput.value.trim() === '' || passwordInput.value.trim() !== 'password') {
+                    if (password === '' || (username === 'admin' && password !== 'password') || (username === 'user' && password !== 'password')) {
                         passwordInput.classList.add('is-invalid');
+                        passwordInput.classList.remove('is-valid');
+                        passwordInput.setCustomValidity("Please enter the correct password for the selected user.");
                         return false;
                     } else {
                         passwordInput.classList.remove('is-invalid');
+                        passwordInput.classList.add('is-valid');
+                        passwordInput.setCustomValidity("");
                     }
-
+        
+                    var usernameInputHidden = document.getElementById('usernameInput');
+                    usernameInputHidden.value = username;
+        
                     return true;
                 }
             </script>
@@ -201,21 +216,28 @@ def login():
   
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-  import plotly.graph_objs as go
+  username = request.args.get('username')
+  print(username)
   
-  # Load dataset
-  dataset = pd.read_csv('labeling-data-instagram.csv')
-  print(dataset)
+  if username == 'admin':
+    import plotly.graph_objs as go
+    # Load dataset
+    dataset = pd.read_csv('labeling-data-instagram.csv')
+    print(dataset)
 
-  # Remove rows with NaN values
-  dataset.dropna(subset=['clean_comment', 'label'], inplace=True)
+    # Remove rows with NaN values
+    dataset.dropna(subset=['clean_comment', 'label'], inplace=True)
+    
+    total_negative = dataset['label'].eq('negative').sum()
+    total_neutral = dataset['label'].eq('neutral').sum()
+    total_positive = dataset['label'].eq('positive').sum()
+
+    return render_template('page-dashboard.html', total_positive=total_positive, total_negative=total_negative, total_neutral=total_neutral)
+  else :
+    # Render the test user dashboard
+    return redirect('/user-prediction')
   
-  total_negative = dataset['label'].eq('negative').sum()
-  total_neutral = dataset['label'].eq('neutral').sum()
-  total_positive = dataset['label'].eq('positive').sum()
-
-  return render_template('page-dashboard.html', total_positive=total_positive,
-                           total_negative=total_negative, total_neutral=total_neutral)
+  
 
 @app.route('/analisis-data/dataset', methods=['GET'])
 def analisisDataset():
@@ -245,44 +267,17 @@ def pageCrawling():
 
 @app.route('/crawling-data', methods=['POST'])
 def crawlingData():
+    link = request.form.get('link')
+    
+    link = link.replace(" ","")
+    link = link.split(",")
+    
     # Initialize the ApifyClient with your API token
     client = ApifyClient("apify_api_20esNplRw082naUn9ckCu6SXMIsWcE0YCS7h")
 
     # Prepare the actor input
     run_input = {
-      "directUrls": [
-        "https://www.instagram.com/p/CnN8rmyPtP5/",
-        "https://www.instagram.com/p/CnNuuEyhirj/",
-        "https://www.instagram.com/p/CoYoz-hOWnC/",
-        "https://www.instagram.com/p/CnVstOXSy83/",
-        "https://www.instagram.com/p/CngI0-LP5aW/",
-        "https://www.instagram.com/p/CnOKSP4hAeO/",
-        "https://www.instagram.com/p/CnOJIlBpzLm/",
-        "https://www.instagram.com/p/CocOljmP5Yr/",
-        "https://www.instagram.com/p/Cnf78BPrlAY/",
-        "https://www.instagram.com/p/CnjdbCcvQAu/",
-        "https://www.instagram.com/p/CnWigBDLDJj/",
-        "https://www.instagram.com/p/CnPJnVKPA3A/",
-        "https://www.instagram.com/p/CnRk109JpsU/",
-        "https://www.instagram.com/p/CnOJcN1PryS/",
-        "https://www.instagram.com/p/CobTZF8v17L/",
-        "https://www.instagram.com/p/CnOOkZoJTUN/",
-        "https://www.instagram.com/p/CnPaBUuSVax/",
-        "https://www.instagram.com/p/CnQlUtOhXcr/",
-        "https://www.instagram.com/p/CnOF-wFpM6V/",
-        "https://www.instagram.com/p/CoKjvs5Lttk/",
-        "https://www.instagram.com/p/CnQ5g0npO0I/",
-        "https://www.instagram.com/p/Cnjg7DAB-Te/",
-        "https://www.instagram.com/p/CnLS_vmpq34/",
-        "https://www.instagram.com/p/CnL2HC9Scsh/",
-        "https://www.instagram.com/p/CnQ_tNGvapq/",
-        "https://www.instagram.com/p/B4_MvZGHD-h/",
-        "https://www.instagram.com/p/CngEw2TrH0u/",
-        "https://www.instagram.com/p/B5Fqc7vFHTA/",
-        "https://www.instagram.com/p/Cniiz-WrbQ-/",
-        "https://www.instagram.com/p/B5WhligFJ1D/",
-        "https://www.instagram.com/p/CoeUl0xSbE1/",
-    ],
+      "directUrls": link,
       "resultsLimit": 1500,
     }
     
@@ -859,6 +854,60 @@ def prediction():
   
   return render_template('page-prediction.html')
 
+@app.route('/user-prediction', methods=['GET', 'POST'])
+def userPrediction():
+  if request.method == 'POST':
+    sentence = request.form['sentence']
+    
+    # Parsing kalimat
+    parsed_sentence = parse_sentence(sentence)
+    
+    # Load dataset
+    dataset = pd.read_csv('labeling-data-instagram.csv')
+    
+    # Remove rows with NaN values
+    dataset.dropna(subset=['clean_comment', 'label'], inplace=True)
+    
+    from sklearn.model_selection import train_test_split
+    from sklearn.naive_bayes import MultinomialNB
+    
+    # Split dataset into training and testing sets
+    X = dataset['clean_comment']
+    y = dataset['label']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+    
+    # Vectorize the text data
+    vectorizer = CountVectorizer()
+    X_train_vectorized = vectorizer.fit_transform(X_train)
+    X_test_vectorized = vectorizer.transform([parsed_sentence])
+
+
+    # Train Naive Bayes classifier
+    nb_classifier = MultinomialNB()
+    nb_classifier.fit(X_train_vectorized, y_train)
+
+    # Make prediction
+    prediction = nb_classifier.predict(X_test_vectorized)[0]
+    prediction_proba = nb_classifier.predict_proba(X_test_vectorized)[0]
+    
+    # Get the percentage for each sentiment category
+    percentage_negative = prediction_proba[0] * 100
+    percentage_neutral = prediction_proba[1] * 100
+    percentage_positive = prediction_proba[2] * 100
+    
+    # Calculate accuracy on testing data
+    X_test_vectorized = vectorizer.transform(X_test)
+    accuracy = nb_classifier.score(X_test_vectorized, y_test)
+    
+    return render_template('user-page-prediction.html', sentence=sentence, 
+            parsed_sentence=parsed_sentence, prediction=prediction,
+            percentage_positive=percentage_positive,
+            percentage_negative=percentage_negative,
+            percentage_neutral=percentage_neutral,
+            accuracy=accuracy)
+  
+  return render_template('user-page-prediction.html')
+
 def parse_sentence(sentence):
     
     # Pembersihan Tagging
@@ -957,7 +1006,39 @@ def register():
 
     # Prepare the actor input
     run_input = {
-      "directUrls": link,
+      "directUrls": [
+        "https://www.instagram.com/p/CnN8rmyPtP5/",
+        "https://www.instagram.com/p/CnNuuEyhirj/",
+        "https://www.instagram.com/p/CoYoz-hOWnC/",
+        "https://www.instagram.com/p/CnVstOXSy83/",
+        "https://www.instagram.com/p/CngI0-LP5aW/",
+        "https://www.instagram.com/p/CnOKSP4hAeO/",
+        "https://www.instagram.com/p/CnOJIlBpzLm/",
+        "https://www.instagram.com/p/CocOljmP5Yr/",
+        "https://www.instagram.com/p/Cnf78BPrlAY/",
+        "https://www.instagram.com/p/CnjdbCcvQAu/",
+        "https://www.instagram.com/p/CnWigBDLDJj/",
+        "https://www.instagram.com/p/CnPJnVKPA3A/",
+        "https://www.instagram.com/p/CnRk109JpsU/",
+        "https://www.instagram.com/p/CnOJcN1PryS/",
+        "https://www.instagram.com/p/CobTZF8v17L/",
+        "https://www.instagram.com/p/CnOOkZoJTUN/",
+        "https://www.instagram.com/p/CnPaBUuSVax/",
+        "https://www.instagram.com/p/CnQlUtOhXcr/",
+        "https://www.instagram.com/p/CnOF-wFpM6V/",
+        "https://www.instagram.com/p/CoKjvs5Lttk/",
+        "https://www.instagram.com/p/CnQ5g0npO0I/",
+        "https://www.instagram.com/p/Cnjg7DAB-Te/",
+        "https://www.instagram.com/p/CnLS_vmpq34/",
+        "https://www.instagram.com/p/CnL2HC9Scsh/",
+        "https://www.instagram.com/p/CnQ_tNGvapq/",
+        "https://www.instagram.com/p/B4_MvZGHD-h/",
+        "https://www.instagram.com/p/CngEw2TrH0u/",
+        "https://www.instagram.com/p/B5Fqc7vFHTA/",
+        "https://www.instagram.com/p/Cniiz-WrbQ-/",
+        "https://www.instagram.com/p/B5WhligFJ1D/",
+        "https://www.instagram.com/p/CoeUl0xSbE1/",
+    ],
       "resultsLimit": 1500,
     }
     
