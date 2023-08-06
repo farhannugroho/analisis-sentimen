@@ -84,7 +84,7 @@
         <div class="col-md-3 sidebar">
           <p><a href="/dashboard">Dashboard</a></p>
           <p>
-            <a href="/analisis-data/dataset">Analisis Sentimen</a>
+            <a href="/analisis-data/dataset?page=1">Analisis Sentimen</a>
           </p>
           <p>
             <a href="/crawling-data">Dataset</a>
@@ -142,12 +142,7 @@
 
                 <p>Presentase Accuracy: {{ accuracy }}%</p>
 
-                <p>Presentase Sentimen: </p>
-                <ul>
-                  <li>Positif: {{ percentage_positive }}%</li>
-                  <li>Negatif: {{ percentage_negative }}%</li>
-                  <li>Netral: {{ percentage_neutral }}%</li>
-                </ul>
+                
                 {% endif %}
               </div>
             </div>

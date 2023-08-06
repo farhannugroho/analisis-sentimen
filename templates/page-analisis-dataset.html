@@ -73,6 +73,7 @@
         white-space: nowrap; /* Prevent line breaks */
       }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </head>
 
   <body>
@@ -84,7 +85,7 @@
         <div class="col-md-3 sidebar">
           <p><a href="/dashboard">Dashboard</a></p>
           <p style="background-color: #1c1e22">
-            <a href="/analisis-data/dataset">Analisis Sentimen</a>
+            <a href="/analisis-data/dataset?page=1">Analisis Sentimen</a>
           </p>
           <p><a href="/crawling-data">Dataset</a></p>
           <p>
@@ -105,17 +106,17 @@
             <div class="row">
               <div class="col-md-3">
                 <h6 style="background-color: #e2e3e5">
-                  <a style="color: #333" href="/analisis-data/dataset"
+                  <a style="color: #333" href="/analisis-data/dataset?page=1"
                     >Dataset</a
                   >
                 </h6>
                 <h6>
-                  <a style="color: #333" href="/analisis-data/preprocessing"
+                  <a style="color: #333" href="/analisis-data/preprocessing?page=1"
                     >Pre-Processing</a
                   >
                 </h6>
                 <h6>
-                  <a style="color: #333" href="/analisis-data/transformation"
+                  <a style="color: #333" href="/analisis-data/transformation?page=1"
                     >Transformation</a
                   >
                 </h6>
@@ -131,29 +132,50 @@
                 </h6>
               </div>
               <div class="col-md-9">
-                <div class="table-responsive">
-                  {% for csv_data in data %}
+                <p>page       : {{ page }}</p>
+                <p>total data : {{ totalData }}</p>
+                <div class="table-responsive" id="table-container">
                   <table class="table table-striped">
                     <thead>
                       <tr>
                         <th>No</th>
-                        {% for column_name in csv_data[0] %}
+                        {% for column_name in data[0] %}
                         <th>{{ column_name }}</th>
                         {% endfor %}
                       </tr>
                     </thead>
                     <tbody>
-                      {% for row in csv_data %}
+                      {% for row in data %}
                       <tr>
-                        <td style="font-size: 12px;">{{ loop.index }}</td>
+                        <td style="font-size: 12px">{{ loop.index }}</td>
                         {% for value in row.values() %}
-                        <td style="font-size: 12px;">{{ value }}</td>
+                        <td style="font-size: 12px">{{ value }}</td>
                         {% endfor %}
                       </tr>
                       {% endfor %}
                     </tbody>
                   </table>
-                  {% endfor %}
+
+                  <div>
+                    <select id="page">
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                      <option value="11">11</option>
+                      <option value="12">12</option>
+                      <option value="13">13</option>
+                      <option value="14">14</option>
+                      <option value="15">15</option>
+                    </select>
+                    <button onclick="sendPage()">Submit</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -161,5 +183,17 @@
         </div>
       </div>
     </div>
+
+    <script>
+      function sendPage() {
+        // Get the selected value from the dropdown
+        var selectedValue = document.getElementById("page").value;
+
+        // Redirect to the new page with the selected value as a query parameter
+        window.location.href =
+          "/analisis-data/dataset?page=" +
+          selectedValue;
+      }
+    </script>
   </body>
 </html>

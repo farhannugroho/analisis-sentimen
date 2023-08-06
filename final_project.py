@@ -178,7 +178,7 @@ def login():
                     var username = usernameInput.value.trim();
                     var password = passwordInput.value.trim();
 
-                    if (username === '' || (username !== 'admin' && username !== 'user')) {
+                    if (username === '' || (username !== 'admin' && username !== 'farhan')) {
                         usernameInput.classList.add('is-invalid');
                         usernameInput.classList.remove('is-valid');
                         usernameInput.setCustomValidity("Please enter a valid username.");
@@ -189,7 +189,7 @@ def login():
                         usernameInput.setCustomValidity("");
                     }
 
-                    if (password === '' || (username === 'admin' && password !== 'password') || (username === 'user' && password !== 'password')) {
+                    if (password === '' || (username === 'admin' && password !== 'password') || (username === 'farhan' && password !== 'password')) {
                         passwordInput.classList.add('is-invalid');
                         passwordInput.classList.remove('is-valid');
                         passwordInput.setCustomValidity("Please enter the correct password for the selected user.");
@@ -217,13 +217,15 @@ def login():
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
   username = request.args.get('username')
-  print(username)
   
-  if username == 'admin':
+  if username == 'farhan':
+    # Render the test user dashboard
+    return redirect('/user-prediction')
+  else :
     import plotly.graph_objs as go
     # Load dataset
     dataset = pd.read_csv('labeling-data-instagram.csv')
-    print(dataset)
+    # print(dataset)
 
     # Remove rows with NaN values
     dataset.dropna(subset=['clean_comment', 'label'], inplace=True)
@@ -233,24 +235,23 @@ def dashboard():
     total_positive = dataset['label'].eq('positive').sum()
 
     return render_template('page-dashboard.html', total_positive=total_positive, total_negative=total_negative, total_neutral=total_neutral)
-  else :
-    # Render the test user dashboard
-    return redirect('/user-prediction')
-  
-  
 
 @app.route('/analisis-data/dataset', methods=['GET'])
 def analisisDataset():
-    csv_files = ['data-instagram.csv']
-    data = []
+    page = request.args.get('page')
+    page = int(page)
     
-    for file in csv_files:
-        # Read the CSV file into a DataFrame
-        df = pd.read_csv(file)
-        # Convert the DataFrame to a dictionary and append it to the data list
-        data.append(df.to_dict('records'))
+    if page == 0:
+      page = 1
+    
+    firstRow = (page * 100) - 100
+    lastRow = page * 100
+    
+    df = pd.read_csv('data-instagram.csv')
+    data = df.iloc[firstRow:lastRow].to_dict('records')
+    totalData = len(df)
         
-    return render_template('page-analisis-dataset.html', data=data)
+    return render_template('page-analisis-dataset.html', data=data, page=page, totalData=totalData)
 
 @app.route('/crawling-data', methods=['GET'])
 def pageCrawling():
@@ -314,6 +315,15 @@ def crawlingData():
 
 @app.route('/analisis-data/preprocessing', methods=['GET'])
 def preprocessing():
+    page = request.args.get('page')
+    page = int(page)
+    
+    if page == 0:
+      page = 1
+    
+    firstRow = (page * 100) - 100
+    lastRow = page * 100
+    
     #Read Data
     def load_data():
       data = pd.read_csv('data-instagram.csv')
@@ -321,7 +331,7 @@ def preprocessing():
     
     comment_df = load_data()
     comment_df = pd.DataFrame(comment_df[['userId', 'createdAt', 'text']])
-    print(comment_df.head(1500))
+    # print(comment_df.head(1500))
 
     #cleaning
     def remove_pattern(text, pattern_regex):
@@ -333,14 +343,14 @@ def preprocessing():
     # remove tagging
     comment_df = comment_df[comment_df['text'].notnull()]
     comment_df['clean_tagging'] = np.vectorize(remove_pattern)(comment_df['text'], " *RT* | *@[\w]*")
-    print(comment_df.head(10))
+    # print(comment_df.head(10))
     
     #remove emoji & character
     def remove(text):
       text =' '.join(re.sub(r"(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)"," ", text).split())
       return text
     comment_df['remove_character'] = comment_df['text'].apply(lambda x: remove(x))
-    print(comment_df.head(9))
+    # print(comment_df.head(9))
     
     #remove hastag
     def remov(text):
@@ -352,11 +362,11 @@ def preprocessing():
       return text
 
     comment_df['remove_hastag'] = comment_df['remove_character'].apply(lambda x: remov(x))
-    print(comment_df.head(10))
+    # print(comment_df.head(10))
     
     #remove duplikat
     comment_df.drop_duplicates(subset = "remove_hastag", keep = 'first', inplace = True)
-    print(comment_df.head(10))
+    # print(comment_df.head(10))
     
     #import stopword
     nltk.download('stopwords')
@@ -385,7 +395,7 @@ def preprocessing():
     dictionary = ArrayDictionary(data)
     stopWord = StopWordRemover(dictionary)
 
-    print(data)
+    # print(data)
 
     #import Sastrawi
     factory = StemmerFactory()
@@ -430,58 +440,62 @@ def preprocessing():
       return comments_clean
     comment_df['tokenizing'] = comment_df ['remove_hastag'].apply(lambda x:clean_comment(x))
     #tokenization
-    print(comment_df.head(10))
+    # print(comment_df.head(10))
     
     #remove punct
     def remove_punct(text):
       text = " ".join([char for char in text if char not in string.punctuation])
       return text
     comment_df['clean_comment'] = comment_df ['tokenizing'].apply(lambda x:remove_punct(x))
-    print(comment_df.head(10))
+    # print(comment_df.head(10))
     
     #reset index
     comment_df = comment_df.reset_index(drop=True)
-    print(comment_df.head(10))
+    # print(comment_df.head(10))
     
     comment_df.drop_duplicates(subset ="remove_hastag", keep = 'first', inplace = True)
-    print(comment_df.head(10))
+    # print(comment_df.head(10))
     
     comment_df.to_csv('preprocessing-data.csv', encoding ='utf8', index = False)
     
     #remove kolom
     comment_df.drop(comment_df.columns[[0,1,3,4,5,6]], axis = 1, inplace = True)
-    print(comment_df.head(1500))
+    # print(comment_df.head(1500))
     
     #simpan data bersih
     comment_df.to_csv('komentar_bersih_instagram.csv', encoding ='utf8', index = False)
     
     
-    csv_files = ['preprocessing-data.csv']
-    data = []
-    
-    for file in csv_files:
-        # Read the CSV file into a DataFrame
-        df = pd.read_csv(file)
-        # Convert the DataFrame to a dictionary and append it to the data list
-        data.append(df.to_dict('records'))
+    df = pd.read_csv('preprocessing-data.csv')
+    data = df.iloc[firstRow:lastRow].to_dict('records')
+    totalData = len(df)
         
-    return render_template('page-analisis-preprocessing.html', data=data)
+    return render_template('page-analisis-preprocessing.html', data=data, page=page, totalData=totalData)
 
 @app.route('/analisis-data/transformation', methods=['GET'])
 def transformation():
+    page = request.args.get('page')
+    page = int(page)
+    
+    if page == 0:
+      page = 1
+    
+    firstRow = (page * 100) - 100
+    lastRow = page * 100
+    
     df = pd.read_csv('komentar_bersih_instagram.csv', usecols=['text','clean_comment']).astype('str')
-    print(df.head(10))
+    # print(df.head(10))
     
     # LEXICON
     lexicon = pd.read_csv('lexicon.csv')
     lexicon['weight'] = lexicon['sentiment'].map({'positive':1, 'negative':-1}) 
     lexicon = dict(zip(lexicon['word'], lexicon['weight']))
-    print(lexicon)
+    # print(lexicon)
     
     # NEGATIVE WORDS
     negative_words = list(open("negative.txt"))
     negative_words = list([word.rstrip() for word in negative_words])
-    print(negative_words)
+    # print(negative_words)
     
     comment_polarity = [] 
     comment_weight = []
@@ -524,7 +538,7 @@ def transformation():
       else:
         comment_polarity.append('neutral') 
 
-    print(df.columns)
+    # print(df.columns)
     results = pd.DataFrame({
         "original_comment" : df['text'], 
         "clean_comment" : df['clean_comment'], 
@@ -544,19 +558,13 @@ def transformation():
     tfidf_df.to_csv('hasil_tfidf.csv', index=False)
 
     # Cetak hasil pembobotan
-    print(tfidf_df)
+    # print(tfidf_df)
     
-    
-    csv_files = ['labeling-data-instagram.csv']
-    data = []
-    
-    for file in csv_files:
-        # Read the CSV file into a DataFrame
-        df = pd.read_csv(file)
-        # Convert the DataFrame to a dictionary and append it to the data list
-        data.append(df.to_dict('records'))
+    df = pd.read_csv('labeling-data-instagram.csv')
+    data = df.iloc[firstRow:lastRow].to_dict('records')
+    totalData = len(df)
         
-    return render_template('page-analisis-transformation.html', data=data)
+    return render_template('page-analisis-transformation.html', data=data, page=page, totalData=totalData)
 
 @app.route('/analisis-data/transformation/tf-idf', methods=['GET'])
 def transformationTfidf():
@@ -806,7 +814,141 @@ def prediction():
     sentence = request.form['sentence']
     
     # Parsing kalimat
-    parsed_sentence = parse_sentence(sentence)
+    # parsed_sentence = parse_sentence(sentence)
+    
+    # Pembersihan Tagging
+    def remove_pattern(text, pattern_regex):
+        r = re.findall(pattern_regex, text)
+        for i in r:
+            text = re.sub(i, '', text)
+        return text
+
+    sentence = remove_pattern(sentence, " *RT* | *@[\w]*")
+    cleanTagging = sentence
+    print(cleanTagging)
+
+    # Penghapusan Emoji dan Karakter Khusus
+    def remove(text):
+        text = ' '.join(re.sub(r"(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", text).split())
+        return text
+
+    sentence = remove(sentence)
+    cleanCharacter = sentence
+    print(cleanCharacter)
+
+    # Penghapusan Hashtag
+    def remov(text):
+        text = re.sub(r'\$\w*', '', text)
+        text = re.sub(r'^RT[\s]+', '', text)
+        text = re.sub(r'#', '', text)
+        text = re.sub(r'[0-9]+', '', text)
+        return text
+
+    sentence = remov(sentence)
+
+    # Tokenisasi
+    from nltk.tokenize import TweetTokenizer
+    tokenizer = TweetTokenizer(preserve_case=False, strip_handles=True, reduce_len=True)
+    comment_tokens = tokenizer.tokenize(sentence)
+
+    # Stopword Removal
+    nltk.download('stopwords')
+    stopwords_indonesia = stopwords.words('indonesian')
+    # Tambahkan stopwords tambahan jika diperlukan
+    more_stopwords = []
+    data = stopwords_indonesia + more_stopwords
+
+    stop_factory = StopWordRemoverFactory().get_stop_words()
+    more_stopwords = [
+        'yg', 'utk', 'cuman', 'deh', 'Btw', 'tapi', 'gua', 'gue', 'lo', 'lu',
+        'kalo', 'trs', 'jd', 'nih', 'ntr', 'nya', 'lg', 'gk', 'ecusli', 'dpt',
+        'dr', 'kpn', 'kok', 'kyk', 'donk', 'yah', 'u', 'ya', 'ga', 'km', 'eh',
+        'sih', 'eh', 'bang', 'br', 'kyk', 'rp', 'jt', 'kan', 'gpp', 'sm', 'usah'
+        'mas', 'sob', 'thx', 'ato', 'jg', 'gw', 'wkwkwk', 'mak', 'haha', 'iy', 'k'
+        'tp','haha', 'dg', 'dri', 'duh', 'ye', 'wkwk', 'syg', 'btw',
+        'nerjemahin', 'gaes', 'guys', 'moga', 'kmrn', 'nemu', 'yukk',
+        'wkwkw', 'klas', 'iw', 'ew', 'lho', 'sbnry', 'org', 'gtu', 'bwt',
+        'krlga', 'clau', 'lbh', 'cpet', 'ku', 'wke', 'mba', 'mas', 'sdh', 'kmrn',
+        'oi', 'spt', 'dlm', 'bs', 'krn', 'jgn', 'sapa', 'spt', 'sh', 'wakakaka',
+        'sihhh', 'hehe', 'ih', 'dgn', 'la', 'kl', 'ttg', 'mana', 'kmna', 'kmn',
+        'tdk', 'tuh', 'dah', 'kek', 'ko', 'pls', 'bbrp', 'pd', 'mah', 'dhhh',
+        'kpd', 'tuh', 'kzl', 'byar', 'si', 'sii', 'cm', 'sy', 'hahahaha', 'weh',
+        'dlu', 'tuhh'
+    ]
+    stop_factory = stop_factory+more_stopwords
+    dictionary = ArrayDictionary(data)
+    stopword = StopWordRemover(dictionary)
+
+    # Proses Stemming
+    factory = StemmerFactory()
+    stemmer = factory.create_stemmer()
+
+    # Praproses komentar
+    def clean_comment(comment):
+        comments_clean = []
+        for word in comment:
+            if (
+                word not in data and
+                word not in string.punctuation
+            ):
+                stem_word = stemmer.stem(word)
+                comments_clean.append(stem_word)
+
+        return comments_clean
+
+    sentence = clean_comment(comment_tokens)
+
+    # Penggabungan kembali kata-kata yang telah dipreproses
+    sentence = TreebankWordDetokenizer().detokenize(sentence)
+    
+    parsed_sentence = sentence
+    test = parsed_sentence
+    
+    # LEXICON
+    lexicon = pd.read_csv('lexicon.csv')
+    lexicon['weight'] = lexicon['sentiment'].map({'positive':1, 'negative':-1}) 
+    lexicon = dict(zip(lexicon['word'], lexicon['weight']))
+    
+    # NEGATIVE WORDS
+    negative_words = list(open("negative.txt"))
+    negative_words = list([word.rstrip() for word in negative_words])
+    
+    comment_polarity = [] 
+    comment_weight = []
+    negasi = False
+
+    sentence_score = 0 
+    sentence_weight = "" 
+    sentiment_count = 0 
+    test = test.split()
+    print(test)
+    for word in test:
+      try:
+        score = lexicon[word]
+        sentiment_count = sentiment_count + 1
+      except:
+        score = 99
+  
+      if(score == 99):
+        if (word in negative_words): 
+          negasi = True
+          sentence_score = sentence_score - 1
+          sentence_weight = sentence_weight + " - 1"
+        else:
+          sentence_score = sentence_score + 0 
+          sentence_weight = sentence_weight + " + 0"
+      else:
+        if(negasi == True):
+          sentence_score = sentence_score + (score * -1.0)
+          sentence_weight = sentence_weight + " + ("+ str(score) + " * -1 "+") " 
+          negasi = False
+        else:
+          sentence_score = sentence_score + score 
+          sentence_weight = sentence_weight + " + "+ str(score)
+      
+    comment_weight = (sentence_weight[1:] +" = " + str(sentence_score))
+
+    print(comment_weight)
     
     # Load dataset
     dataset = pd.read_csv('labeling-data-instagram.csv')
@@ -835,11 +977,17 @@ def prediction():
     # Make prediction
     prediction = nb_classifier.predict(X_test_vectorized)[0]
     prediction_proba = nb_classifier.predict_proba(X_test_vectorized)[0]
+    print(prediction)
+    print(prediction_proba)
+    print(X_test_vectorized)
     
     # Get the percentage for each sentiment category
     percentage_negative = prediction_proba[0] * 100
     percentage_neutral = prediction_proba[1] * 100
     percentage_positive = prediction_proba[2] * 100
+    print(percentage_negative)
+    print(percentage_neutral)
+    print(percentage_positive)
     
     # Calculate accuracy on testing data
     X_test_vectorized = vectorizer.transform(X_test)
@@ -847,9 +995,6 @@ def prediction():
     
     return render_template('page-prediction.html', sentence=sentence, 
             parsed_sentence=parsed_sentence, prediction=prediction,
-            percentage_positive=percentage_positive,
-            percentage_negative=percentage_negative,
-            percentage_neutral=percentage_neutral,
             accuracy=accuracy)
   
   return render_template('page-prediction.html')
