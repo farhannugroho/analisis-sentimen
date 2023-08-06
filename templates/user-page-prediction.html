@@ -110,6 +110,7 @@
                     id="sentence"
                     required
                     autocomplete="off"
+                    style="width: 400px; height: 50px"
                   /><br /><br />
                   <button type="submit" onclick="showLoading()">
                     Prediksi
@@ -126,23 +127,62 @@
                 </div>
               </form>
 
-              <div>
-                {% if sentence %}
-                <h5>Hasil:</h5>
-                <p>Kalimat awal: {{ sentence }}</p>
-                <p>Kalimat setelah parsing: {{ parsed_sentence }}</p>
-                <p>Prediksi Sentimen: {{ prediction }}</p>
-
-                <p>Presentase Accuracy: {{ accuracy }}%</p>
-
-                <p>Presentase Sentimen: </p>
-                <ul>
-                  <li>Positif: {{ percentage_positive }}%</li>
-                  <li>Negatif: {{ percentage_negative }}%</li>
-                  <li>Netral: {{ percentage_neutral }}%</li>
-                </ul>
-                {% endif %}
+              {% if text %}
+              <h5>Hasil:</h5>
+              <div class="table-responsive" id="table-container">
+                <table class="table table-striped">
+                  <tbody>
+                    <tr>
+                      <td style="font-size: 12px">Text</td>
+                      <td style="font-size: 12px">{{ text }}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 12px">Clean Tagging</td>
+                      <td style="font-size: 12px">{{ cleanTagging }}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 12px">Clean Character</td>
+                      <td style="font-size: 12px">{{ cleanCharacter }}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 12px">Clean Hastag</td>
+                      <td style="font-size: 12px">{{ cleanHastag }}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 12px">Tokenizing</td>
+                      <td style="font-size: 12px">{{ tokenizing }}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 12px">Steming</td>
+                      <td style="font-size: 12px">{{ steming }}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 12px">Clean Comment</td>
+                      <td style="font-size: 12px">{{ cleanComment }}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 12px">Comment Weight</td>
+                      <td style="font-size: 12px">{{ comment_weight }}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 12px">Labeling</td>
+                      <td style="font-size: 12px">{{ labeling }}</td>
+                    </tr>
+                    {% if labeling == 'negative' %}
+                    <tr>
+                      <td style="font-size: 12px">Presentase Accuracy</td>
+                      <td style="font-size: 12px">- {{ accuracy }}%</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td style="font-size: 12px">Presentase Accuracy</td>
+                      <td style="font-size: 12px">{{ accuracy }}%</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
               </div>
+              {% endif %}
             </div>
           </div>
         </div>

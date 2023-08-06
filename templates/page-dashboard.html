@@ -85,8 +85,34 @@
             class="card shadow p-3 mb-5 bg-white rounded"
             style="margin-top: 30px"
           >
-            <!-- Convert the JSON representation to a JavaScript object -->
-            <div id="pie_chart" style="width: 500px; height: 500px"></div>
+            <div class="row" style="justify-content: center;">
+              <!-- Convert the JSON representation to a JavaScript object -->
+              <div id="pie_chart" style="width: 400px; height: 400px;"></div>
+            </div>
+            <div class="row" style="padding: 20px">
+              <div class="table-responsive" id="table-container">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      {% for column_name in data[0] %}
+                      <th>{{ column_name }}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody">
+                    {% for row in data %}
+                    <tr>
+                      <td style="font-size: 12px">{{ loop.index }}</td>
+                      {% for value in row.values() %}
+                      <td style="font-size: 12px">{{ value }}</td>
+                      {% endfor %}
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>

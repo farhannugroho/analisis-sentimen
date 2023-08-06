@@ -233,8 +233,11 @@ def dashboard():
     total_negative = dataset['label'].eq('negative').sum()
     total_neutral = dataset['label'].eq('neutral').sum()
     total_positive = dataset['label'].eq('positive').sum()
+    
+    data = pd.read_csv('list-prediction.csv')
+    data = data.tail(3).to_dict('records')
 
-    return render_template('page-dashboard.html', total_positive=total_positive, total_negative=total_negative, total_neutral=total_neutral)
+    return render_template('page-dashboard.html', total_positive=total_positive, total_negative=total_negative, total_neutral=total_neutral, data=data)
 
 @app.route('/analisis-data/dataset', methods=['GET'])
 def analisisDataset():
@@ -530,7 +533,7 @@ def transformation():
             sentence_score = sentence_score + score 
             sentence_weight = sentence_weight + " + "+ str(score)
         
-      comment_weight.append(sentence_weight[1:] +" = " + str(sentence_score)) 
+      comment_weight.append(sentence_weight[3:] +" = " + str(sentence_score)) 
       if sentence_score > 0:
         comment_polarity.append('positive') 
       elif sentence_score < 0:
@@ -812,6 +815,8 @@ def evaluationProcess():
 def prediction():
   if request.method == 'POST':
     sentence = request.form['sentence']
+    text = sentence
+    print("text", text)
     
     # Parsing kalimat
     # parsed_sentence = parse_sentence(sentence)
@@ -825,7 +830,7 @@ def prediction():
 
     sentence = remove_pattern(sentence, " *RT* | *@[\w]*")
     cleanTagging = sentence
-    print(cleanTagging)
+    print("clean_tagging", cleanTagging)
 
     # Penghapusan Emoji dan Karakter Khusus
     def remove(text):
@@ -834,7 +839,7 @@ def prediction():
 
     sentence = remove(sentence)
     cleanCharacter = sentence
-    print(cleanCharacter)
+    print("clean_character", cleanCharacter)
 
     # Penghapusan Hashtag
     def remov(text):
@@ -845,11 +850,15 @@ def prediction():
         return text
 
     sentence = remov(sentence)
+    cleanHastag = sentence
+    print("clean_hastag", cleanHastag)
 
     # Tokenisasi
     from nltk.tokenize import TweetTokenizer
     tokenizer = TweetTokenizer(preserve_case=False, strip_handles=True, reduce_len=True)
     comment_tokens = tokenizer.tokenize(sentence)
+    tokenizing = comment_tokens
+    print("tokenizing", tokenizing)
 
     # Stopword Removal
     nltk.download('stopwords')
@@ -897,6 +906,232 @@ def prediction():
         return comments_clean
 
     sentence = clean_comment(comment_tokens)
+    steming = sentence
+    print("steming", steming)
+
+    # Penggabungan kembali kata-kata yang telah dipreproses
+    sentence = TreebankWordDetokenizer().detokenize(sentence)
+    cleanComment = sentence
+    print("clean_comment", cleanComment)
+    
+    parsed_sentence = sentence
+    test = parsed_sentence
+    
+    # LEXICON
+    lexicon = pd.read_csv('lexicon.csv')
+    lexicon['weight'] = lexicon['sentiment'].map({'positive':1, 'negative':-1}) 
+    lexicon = dict(zip(lexicon['word'], lexicon['weight']))
+    
+    # NEGATIVE WORDS
+    negative_words = list(open("negative.txt"))
+    negative_words = list([word.rstrip() for word in negative_words])
+    
+    comment_polarity = [] 
+    comment_weight = []
+    negasi = False
+
+    sentence_score = 0 
+    sentence_weight = "" 
+    sentiment_count = 0 
+    test = test.split()
+    for word in test:
+      try:
+        score = lexicon[word]
+        sentiment_count = sentiment_count + 1
+      except:
+        score = 99
+  
+      if(score == 99):
+        if (word in negative_words): 
+          negasi = True
+          sentence_score = sentence_score - 1
+          sentence_weight = sentence_weight + " - 1"
+        else:
+          sentence_score = sentence_score + 0 
+          sentence_weight = sentence_weight + " + 0"
+      else:
+        if(negasi == True):
+          sentence_score = sentence_score + (score * -1.0)
+          sentence_weight = sentence_weight + " + ("+ str(score) + " * -1 "+") " 
+          negasi = False
+        else:
+          sentence_score = sentence_score + score 
+          sentence_weight = sentence_weight + " + "+ str(score)
+          
+    if sentence_score > 0:
+      labeling = 'positive' 
+    elif sentence_score < 0:
+      labeling = 'negative'
+    else:
+      labeling = 'neutral'
+        
+    comment_weight = (sentence_weight[3:] +" = " + str(sentence_score))
+    print("comment_weight", comment_weight)
+    print("labeling", labeling)
+    
+    # Load dataset
+    dataset = pd.read_csv('labeling-data-instagram.csv')
+    
+    # Remove rows with NaN values
+    dataset.dropna(subset=['clean_comment', 'label'], inplace=True)
+    
+    from sklearn.model_selection import train_test_split
+    from sklearn.naive_bayes import MultinomialNB
+    
+    # Split dataset into training and testing sets
+    X = dataset['clean_comment']
+    y = dataset['label']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+    
+    # Vectorize the text data
+    vectorizer = CountVectorizer()
+    X_train_vectorized = vectorizer.fit_transform(X_train)
+    X_test_vectorized = vectorizer.transform([parsed_sentence])
+
+
+    # Train Naive Bayes classifier
+    nb_classifier = MultinomialNB()
+    nb_classifier.fit(X_train_vectorized, y_train)
+
+    # Make prediction
+    hasilPrediksi = nb_classifier.predict(X_test_vectorized)[0]
+    prediction_proba = nb_classifier.predict_proba(X_test_vectorized)[0]
+    print(hasilPrediksi)
+    print(prediction_proba)
+    print(X_test_vectorized)
+    
+    # Get the percentage for each sentiment category
+    percentage_negative = prediction_proba[0] * 100
+    percentage_neutral = prediction_proba[1] * 100
+    percentage_positive = prediction_proba[2] * 100
+    print(percentage_negative)
+    print(percentage_neutral)
+    print(percentage_positive)
+    
+    # Calculate accuracy on testing data
+    X_test_vectorized = vectorizer.transform(X_test)
+    accuracy = nb_classifier.score(X_test_vectorized, y_test)
+    print("accuracy",accuracy)
+    
+    listPrediction = pd.read_csv('list-prediction.csv')
+    # Create a new row with the values
+    new_row = {
+        "text": [text],
+        "clean_comment": [cleanComment],
+        "labeling": [labeling],
+        "accuracy": [accuracy]
+    }
+
+    # Menambahkan baris baru ke DataFrame
+    listPrediction = pd.concat([listPrediction, pd.DataFrame(new_row, index=[0])], ignore_index=True)
+
+    # Menyimpan DataFrame ke file CSV
+    filename = "list-prediction.csv"
+    listPrediction.to_csv(filename, index=False)
+    
+    return render_template('page-prediction.html', text=text, cleanTagging=cleanTagging, cleanCharacter=cleanCharacter,
+      cleanHastag=cleanHastag, tokenizing=tokenizing, steming=steming, cleanComment=cleanComment, comment_weight=comment_weight, 
+      labeling=labeling, accuracy=accuracy)
+  
+  return render_template('page-prediction.html')
+
+@app.route('/user-prediction', methods=['GET', 'POST'])
+def userPrediction():
+  if request.method == 'POST':
+    sentence = request.form['sentence']
+    text = sentence
+    print("text", text)
+    
+    # Parsing kalimat
+    # parsed_sentence = parse_sentence(sentence)
+    
+    # Pembersihan Tagging
+    def remove_pattern(text, pattern_regex):
+        r = re.findall(pattern_regex, text)
+        for i in r:
+            text = re.sub(i, '', text)
+        return text
+
+    sentence = remove_pattern(sentence, " *RT* | *@[\w]*")
+    cleanTagging = sentence
+    print("clean_tagging", cleanTagging)
+
+    # Penghapusan Emoji dan Karakter Khusus
+    def remove(text):
+        text = ' '.join(re.sub(r"(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", text).split())
+        return text
+
+    sentence = remove(sentence)
+    cleanCharacter = sentence
+    print("clean_character", cleanCharacter)
+
+    # Penghapusan Hashtag
+    def remov(text):
+        text = re.sub(r'\$\w*', '', text)
+        text = re.sub(r'^RT[\s]+', '', text)
+        text = re.sub(r'#', '', text)
+        text = re.sub(r'[0-9]+', '', text)
+        return text
+
+    sentence = remov(sentence)
+    cleanHastag = sentence
+    print("clean_hastag", cleanHastag)
+
+    # Tokenisasi
+    from nltk.tokenize import TweetTokenizer
+    tokenizer = TweetTokenizer(preserve_case=False, strip_handles=True, reduce_len=True)
+    comment_tokens = tokenizer.tokenize(sentence)
+    tokenizing = comment_tokens
+    print("tokenizing", tokenizing)
+
+    # Stopword Removal
+    nltk.download('stopwords')
+    stopwords_indonesia = stopwords.words('indonesian')
+    # Tambahkan stopwords tambahan jika diperlukan
+    more_stopwords = []
+    data = stopwords_indonesia + more_stopwords
+
+    stop_factory = StopWordRemoverFactory().get_stop_words()
+    more_stopwords = [
+        'yg', 'utk', 'cuman', 'deh', 'Btw', 'tapi', 'gua', 'gue', 'lo', 'lu',
+        'kalo', 'trs', 'jd', 'nih', 'ntr', 'nya', 'lg', 'gk', 'ecusli', 'dpt',
+        'dr', 'kpn', 'kok', 'kyk', 'donk', 'yah', 'u', 'ya', 'ga', 'km', 'eh',
+        'sih', 'eh', 'bang', 'br', 'kyk', 'rp', 'jt', 'kan', 'gpp', 'sm', 'usah'
+        'mas', 'sob', 'thx', 'ato', 'jg', 'gw', 'wkwkwk', 'mak', 'haha', 'iy', 'k'
+        'tp','haha', 'dg', 'dri', 'duh', 'ye', 'wkwk', 'syg', 'btw',
+        'nerjemahin', 'gaes', 'guys', 'moga', 'kmrn', 'nemu', 'yukk',
+        'wkwkw', 'klas', 'iw', 'ew', 'lho', 'sbnry', 'org', 'gtu', 'bwt',
+        'krlga', 'clau', 'lbh', 'cpet', 'ku', 'wke', 'mba', 'mas', 'sdh', 'kmrn',
+        'oi', 'spt', 'dlm', 'bs', 'krn', 'jgn', 'sapa', 'spt', 'sh', 'wakakaka',
+        'sihhh', 'hehe', 'ih', 'dgn', 'la', 'kl', 'ttg', 'mana', 'kmna', 'kmn',
+        'tdk', 'tuh', 'dah', 'kek', 'ko', 'pls', 'bbrp', 'pd', 'mah', 'dhhh',
+        'kpd', 'tuh', 'kzl', 'byar', 'si', 'sii', 'cm', 'sy', 'hahahaha', 'weh',
+        'dlu', 'tuhh'
+    ]
+    stop_factory = stop_factory+more_stopwords
+    dictionary = ArrayDictionary(data)
+    stopword = StopWordRemover(dictionary)
+
+    # Proses Stemming
+    factory = StemmerFactory()
+    stemmer = factory.create_stemmer()
+
+    # Praproses komentar
+    def clean_comment(comment):
+        comments_clean = []
+        for word in comment:
+            if (
+                word not in data and
+                word not in string.punctuation
+            ):
+                stem_word = stemmer.stem(word)
+                comments_clean.append(stem_word)
+
+        return comments_clean
+
+    sentence = clean_comment(comment_tokens)
+    steming = sentence
+    print("steming", steming)
 
     # Penggabungan kembali kata-kata yang telah dipreproses
     sentence = TreebankWordDetokenizer().detokenize(sentence)
@@ -921,7 +1156,6 @@ def prediction():
     sentence_weight = "" 
     sentiment_count = 0 
     test = test.split()
-    print(test)
     for word in test:
       try:
         score = lexicon[word]
@@ -945,10 +1179,17 @@ def prediction():
         else:
           sentence_score = sentence_score + score 
           sentence_weight = sentence_weight + " + "+ str(score)
-      
-    comment_weight = (sentence_weight[1:] +" = " + str(sentence_score))
-
-    print(comment_weight)
+          
+    if sentence_score > 0:
+      labeling = 'positive' 
+    elif sentence_score < 0:
+      labeling = 'negative'
+    else:
+      labeling = 'neutral'
+        
+    comment_weight = (sentence_weight[3:] +" = " + str(sentence_score))
+    print("comment_weight", comment_weight)
+    print("labeling", labeling)
     
     # Load dataset
     dataset = pd.read_csv('labeling-data-instagram.csv')
@@ -975,9 +1216,9 @@ def prediction():
     nb_classifier.fit(X_train_vectorized, y_train)
 
     # Make prediction
-    prediction = nb_classifier.predict(X_test_vectorized)[0]
+    hasilPrediksi = nb_classifier.predict(X_test_vectorized)[0]
     prediction_proba = nb_classifier.predict_proba(X_test_vectorized)[0]
-    print(prediction)
+    print(hasilPrediksi)
     print(prediction_proba)
     print(X_test_vectorized)
     
@@ -993,63 +1234,9 @@ def prediction():
     X_test_vectorized = vectorizer.transform(X_test)
     accuracy = nb_classifier.score(X_test_vectorized, y_test)
     
-    return render_template('page-prediction.html', sentence=sentence, 
-            parsed_sentence=parsed_sentence, prediction=prediction,
-            accuracy=accuracy)
-  
-  return render_template('page-prediction.html')
-
-@app.route('/user-prediction', methods=['GET', 'POST'])
-def userPrediction():
-  if request.method == 'POST':
-    sentence = request.form['sentence']
-    
-    # Parsing kalimat
-    parsed_sentence = parse_sentence(sentence)
-    
-    # Load dataset
-    dataset = pd.read_csv('labeling-data-instagram.csv')
-    
-    # Remove rows with NaN values
-    dataset.dropna(subset=['clean_comment', 'label'], inplace=True)
-    
-    from sklearn.model_selection import train_test_split
-    from sklearn.naive_bayes import MultinomialNB
-    
-    # Split dataset into training and testing sets
-    X = dataset['clean_comment']
-    y = dataset['label']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
-    
-    # Vectorize the text data
-    vectorizer = CountVectorizer()
-    X_train_vectorized = vectorizer.fit_transform(X_train)
-    X_test_vectorized = vectorizer.transform([parsed_sentence])
-
-
-    # Train Naive Bayes classifier
-    nb_classifier = MultinomialNB()
-    nb_classifier.fit(X_train_vectorized, y_train)
-
-    # Make prediction
-    prediction = nb_classifier.predict(X_test_vectorized)[0]
-    prediction_proba = nb_classifier.predict_proba(X_test_vectorized)[0]
-    
-    # Get the percentage for each sentiment category
-    percentage_negative = prediction_proba[0] * 100
-    percentage_neutral = prediction_proba[1] * 100
-    percentage_positive = prediction_proba[2] * 100
-    
-    # Calculate accuracy on testing data
-    X_test_vectorized = vectorizer.transform(X_test)
-    accuracy = nb_classifier.score(X_test_vectorized, y_test)
-    
-    return render_template('user-page-prediction.html', sentence=sentence, 
-            parsed_sentence=parsed_sentence, prediction=prediction,
-            percentage_positive=percentage_positive,
-            percentage_negative=percentage_negative,
-            percentage_neutral=percentage_neutral,
-            accuracy=accuracy)
+    return render_template('user-page-prediction.html', text=text, cleanTagging=cleanTagging, cleanCharacter=cleanCharacter,
+      cleanHastag=cleanHastag, tokenizing=tokenizing, steming=steming, comment_weight=comment_weight, 
+      labeling=labeling, accuracy=accuracy)
   
   return render_template('user-page-prediction.html')
 

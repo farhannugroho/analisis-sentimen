@@ -111,12 +111,16 @@
                   >
                 </h6>
                 <h6>
-                  <a style="color: #333" href="/analisis-data/preprocessing?page=1"
+                  <a
+                    style="color: #333"
+                    href="/analisis-data/preprocessing?page=1"
                     >Pre-Processing</a
                   >
                 </h6>
                 <h6>
-                  <a style="color: #333" href="/analisis-data/transformation?page=1"
+                  <a
+                    style="color: #333"
+                    href="/analisis-data/transformation?page=1"
                     >Transformation</a
                   >
                 </h6>
@@ -132,9 +136,26 @@
                 </h6>
               </div>
               <div class="col-md-9">
-                <p>page       : {{ page }}</p>
+                <p>page : {{ page }}</p>
                 <p>total data : {{ totalData }}</p>
                 <div class="table-responsive" id="table-container">
+                  <div class="input-group mb-3">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="searchInput"
+                      placeholder="Cari data..."
+                    />
+                    <div class="input-group-append">
+                      <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        id="searchButton"
+                      >
+                        Cari
+                      </button>
+                    </div>
+                  </div>
                   <table class="table table-striped">
                     <thead>
                       <tr>
@@ -144,7 +165,7 @@
                         {% endfor %}
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tableBody">
                       {% for row in data %}
                       <tr>
                         <td style="font-size: 12px">{{ loop.index }}</td>
@@ -185,14 +206,21 @@
     </div>
 
     <script>
+      $(document).ready(function () {
+        $("#searchButton").click(function () {
+          var input = $("#searchInput").val().toLowerCase();
+          $("#tableBody tr").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(input) > -1);
+          });
+        });
+      });
+
       function sendPage() {
         // Get the selected value from the dropdown
         var selectedValue = document.getElementById("page").value;
 
         // Redirect to the new page with the selected value as a query parameter
-        window.location.href =
-          "/analisis-data/dataset?page=" +
-          selectedValue;
+        window.location.href = "/analisis-data/dataset?page=" + selectedValue;
       }
     </script>
   </body>
