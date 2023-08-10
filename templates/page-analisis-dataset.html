@@ -5,7 +5,20 @@
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <style>
+      .ui-autocomplete {
+        max-height: 150px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 1000;
+      }
+
       /* Style untuk top bar */
       .top-bar {
         height: 60px;
@@ -73,7 +86,6 @@
         white-space: nowrap; /* Prevent line breaks */
       }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </head>
 
   <body>
@@ -146,15 +158,6 @@
                       id="searchInput"
                       placeholder="Cari data..."
                     />
-                    <div class="input-group-append">
-                      <button
-                        class="btn btn-outline-secondary"
-                        type="button"
-                        id="searchButton"
-                      >
-                        Cari
-                      </button>
-                    </div>
                   </div>
                   <table class="table table-striped">
                     <thead>
@@ -207,12 +210,43 @@
 
     <script>
       $(document).ready(function () {
-        $("#searchButton").click(function () {
-          var input = $("#searchInput").val().toLowerCase();
-          $("#tableBody tr").filter(function () {
-            $(this).toggle($(this).text().toLowerCase().indexOf(input) > -1);
-          });
+        var autocompleteData = [
+          {% for row in data %}
+            "{{ row['column_name'] }}",
+          {% endfor %}
+        ];
+
+        $("#searchInput").autocomplete({
+          source: autocompleteData,
+          minLength: 1,
+          select: function (event, ui) {
+            var selectedValue = ui.item.value;
+            $("#tableBody tr").hide();
+            $("#tableBody tr:contains('" + selectedValue + "')").show();
+          },
+          response: function (event, ui) {
+            if (ui.content.length === 0) {
+              $("#autocompleteSuggestions").html("No suggestions available.");
+            } else {
+              $("#autocompleteSuggestions").empty();
+            }
+          },
+          open: function () {
+            $("#autocompleteSuggestions").empty();
+          }
         });
+
+        // Tambahkan kode ini untuk menampilkan semua baris tabel saat halaman dimuat
+        $("#tableBody tr").show();
+
+        // Tambahkan event input untuk elemen searchInput
+        $("#searchInput").on("input", function () {
+          var input = $(this).val().toLowerCase();
+          $("#tableBody tr").hide();
+          $("#tableBody tr:contains('" + input + "')").show();
+        });
+
+        // Rest of your existing code...
       });
 
       function sendPage() {
