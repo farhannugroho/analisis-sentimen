@@ -800,12 +800,21 @@ def evaluationProcess():
     from wordcloud import WordCloud
 
     #convert list to string and generate
-    unique_string=(" ").join(df['clean_comment'])
-    wordcloud = WordCloud(width = 800, height = 400,background_color ='white').generate(unique_string)
+    positive_comments=(" ").join(df[df['label'] == 'positive']['clean_comment'])
+    wordcloud = WordCloud(width = 800, height = 400,background_color ='white').generate(positive_comments)
     plt.figure(figsize=(15,8))
     plt.imshow(wordcloud)
     plt.axis("off")
-    plt.savefig("static/wrcld.png", bbox_inches='tight')
+    plt.savefig("static/wrcld-positif.png", bbox_inches='tight')
+    # # plt.show()
+    plt.close()
+    
+    negatif_comments=(" ").join(df[df['label'] == 'negative']['clean_comment'])
+    wordcloud = WordCloud(width = 800, height = 400,background_color ='white').generate(negatif_comments)
+    plt.figure(figsize=(15,8))
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    plt.savefig("static/wrcld-negatif.png", bbox_inches='tight')
     # # plt.show()
     plt.close()  
         
